@@ -1,0 +1,8 @@
+{
+    "cliVersion": "2.8.2",
+    "generatorName": "fernapi/fern-typescript-node-sdk",
+    "generatorVersion": "3.34.0",
+    "generatorConfig": {
+        "namespaceExport": "Pulse"
+    }
+}
