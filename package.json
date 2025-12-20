@@ -1,6 +1,6 @@
 {
     "name": "pulse-sdk",
-    "version": "0.0.41",
+    "version": "1.0.1",
     "private": false,
     "repository": "github:Pulse-Software-Corp/pulse-ts-sdk",
     "type": "commonjs",

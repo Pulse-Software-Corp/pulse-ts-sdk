@@ -49,8 +49,8 @@ export function normalizeClientOptions<T extends BaseClientOptions>(options: T):
         {
             "X-Fern-Language": "JavaScript",
             "X-Fern-SDK-Name": "pulse-sdk",
-            "X-Fern-SDK-Version": "0.0.41",
-            "User-Agent": "pulse-sdk/0.0.41",
+            "X-Fern-SDK-Version": "1.0.1",
+            "User-Agent": "pulse-sdk/1.0.1",
             "X-Fern-Runtime": core.RUNTIME.type,
             "X-Fern-Runtime-Version": core.RUNTIME.version,
         },
