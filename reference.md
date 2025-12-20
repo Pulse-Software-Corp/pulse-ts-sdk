@@ -1,4 +1,71 @@
 # Reference
+<details><summary><code>client.<a href="/src/Client.ts">extract</a>({ ...params }) -> Pulse.ExtractResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Performs a synchronous extraction job against an uploaded document or a
+remote file URL. The request accepts a variety of configuration options
+used by the Pulse extraction pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.extract({
+    fileUrl: "fileUrl"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.ExtractJsonInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `PulseClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 <details><summary><code>client.<a href="/src/Client.ts">extractAsync</a>({ ...params }) -> Pulse.ExtractAsyncResponse</code></summary>
 <dl>
 <dd>
@@ -66,7 +133,6 @@ await client.extractAsync({
 </dl>
 </details>
 
-## 
 ## Jobs
 <details><summary><code>client.jobs.<a href="/src/api/resources/jobs/client/Client.ts">getJob</a>({ ...params }) -> Pulse.JobStatusResponse</code></summary>
 <dl>

@@ -5,11 +5,12 @@ import { type NormalizedClientOptions, normalizeClientOptions } from "../../../.
 import { mergeHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
+import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCodeError.js";
 import * as errors from "../../../../errors/index.js";
 import * as Pulse from "../../../index.js";
 
 export declare namespace JobsClient {
-    export interface Options extends BaseClientOptions {}
+    export type Options = BaseClientOptions;
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
@@ -93,21 +94,7 @@ export class JobsClient {
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PulseError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PulseTimeoutError("Timeout exceeded when calling GET /job/{jobId}.");
-            case "unknown":
-                throw new errors.PulseError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/job/{jobId}");
     }
 
     /**
@@ -182,20 +169,6 @@ export class JobsClient {
             }
         }
 
-        switch (_response.error.reason) {
-            case "non-json":
-                throw new errors.PulseError({
-                    statusCode: _response.error.statusCode,
-                    body: _response.error.rawBody,
-                    rawResponse: _response.rawResponse,
-                });
-            case "timeout":
-                throw new errors.PulseTimeoutError("Timeout exceeded when calling DELETE /job/{jobId}.");
-            case "unknown":
-                throw new errors.PulseError({
-                    message: _response.error.errorMessage,
-                    rawResponse: _response.rawResponse,
-                });
-        }
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "DELETE", "/job/{jobId}");
     }
 }
