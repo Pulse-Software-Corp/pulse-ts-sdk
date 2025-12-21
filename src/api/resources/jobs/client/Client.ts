@@ -23,8 +23,8 @@ export class JobsClient {
     }
 
     /**
-     * Check the status and retrieve results of an asynchronous job
-     * (e.g., submitted via `/extract_async`).
+     * Retrieves the latest status and metadata for an asynchronous extraction job
+     * that was previously submitted via `/extract_async`.
      *
      * @param {Pulse.GetJobRequest} request
      * @param {JobsClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -98,7 +98,7 @@ export class JobsClient {
     }
 
     /**
-     * Attempts to cancel an asynchronous job that is currently pending
+     * Attempts to cancel an asynchronous extraction job that is currently pending
      * or processing. Jobs that have already completed will remain unchanged.
      *
      * @param {Pulse.CancelJobRequest} request

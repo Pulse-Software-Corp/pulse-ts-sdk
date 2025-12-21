@@ -7,6 +7,6 @@
  *     }
  */
 export interface GetJobRequest {
-    /** Identifier returned from an async job submission (e.g., `/extract_async`). */
+    /** Identifier returned from the `/extract_async` submission. */
     jobId: string;
 }
