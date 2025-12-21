@@ -7,7 +7,7 @@ import { mockServerPool } from "../mock-server/MockServerPool";
 describe("WebhooksClient", () => {
     test("createWebhookLink (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { link: "link" };
         server.mockEndpoint().post("/webhook").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -20,7 +20,7 @@ describe("WebhooksClient", () => {
 
     test("createWebhookLink (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().post("/webhook").respondWith().statusCode(401).jsonBody(rawResponseBody).build();
@@ -32,7 +32,7 @@ describe("WebhooksClient", () => {
 
     test("createWebhookLink (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().post("/webhook").respondWith().statusCode(500).jsonBody(rawResponseBody).build();

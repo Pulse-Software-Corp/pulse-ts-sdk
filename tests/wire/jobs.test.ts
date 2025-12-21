@@ -7,7 +7,7 @@ import { mockServerPool } from "../mock-server/MockServerPool";
 describe("JobsClient", () => {
     test("getJob (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = {
             job_id: "job_id",
@@ -36,7 +36,7 @@ describe("JobsClient", () => {
 
     test("getJob (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/job/jobId").respondWith().statusCode(401).jsonBody(rawResponseBody).build();
@@ -50,7 +50,7 @@ describe("JobsClient", () => {
 
     test("getJob (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/job/jobId").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
@@ -64,7 +64,7 @@ describe("JobsClient", () => {
 
     test("getJob (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/job/jobId").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
@@ -78,7 +78,7 @@ describe("JobsClient", () => {
 
     test("getJob (5)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/job/jobId").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
@@ -92,7 +92,7 @@ describe("JobsClient", () => {
 
     test("getJob (6)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().get("/job/jobId").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
@@ -106,7 +106,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (1)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { job_id: "job_id", message: "message" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(200).jsonBody(rawResponseBody).build();
@@ -122,7 +122,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (2)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(401).jsonBody(rawResponseBody).build();
@@ -136,7 +136,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (3)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(403).jsonBody(rawResponseBody).build();
@@ -150,7 +150,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (4)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(404).jsonBody(rawResponseBody).build();
@@ -164,7 +164,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (5)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(429).jsonBody(rawResponseBody).build();
@@ -178,7 +178,7 @@ describe("JobsClient", () => {
 
     test("cancelJob (6)", async () => {
         const server = mockServerPool.createServer();
-        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const client = new PulseClient({ maxRetries: 0, environment: server.baseUrl });
 
         const rawResponseBody = { key: "value" };
         server.mockEndpoint().delete("/job/jobId").respondWith().statusCode(500).jsonBody(rawResponseBody).build();
