@@ -50,9 +50,9 @@ export function normalizeClientOptions<T extends BaseClientOptions = BaseClientO
     const headers = mergeHeaders(
         {
             "X-Fern-Language": "JavaScript",
-            "X-Fern-SDK-Name": "pulse-sdk",
-            "X-Fern-SDK-Version": "1.0.3",
-            "User-Agent": "pulse-sdk/1.0.3",
+            "X-Fern-SDK-Name": "pulse-ts-sdk",
+            "X-Fern-SDK-Version": "0.0.49",
+            "User-Agent": "pulse-ts-sdk/0.0.49",
             "X-Fern-Runtime": core.RUNTIME.type,
             "X-Fern-Runtime-Version": core.RUNTIME.version,
         },
