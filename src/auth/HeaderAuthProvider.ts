@@ -34,7 +34,7 @@ export class HeaderAuthProvider implements core.AuthProvider {
         const headerValue = apiKey;
 
         return {
-            headers: { X_API_KEY: headerValue },
+            headers: { "x-api-key": headerValue },
         };
     }
 }
