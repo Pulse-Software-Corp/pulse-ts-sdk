@@ -5,7 +5,7 @@ import * as errors from "../errors/index.js";
 
 export namespace HeaderAuthProvider {
     export interface AuthOptions {
-        apiKey?: core.Supplier<string>;
+        apiKey?: core.Supplier<string> | undefined;
     }
 
     export interface Options extends AuthOptions {}
@@ -19,14 +19,15 @@ export class HeaderAuthProvider implements core.AuthProvider {
     }
 
     public static canCreate(options: HeaderAuthProvider.Options): boolean {
-        return options.apiKey != null;
+        return options.apiKey != null || process.env?.PULSE_API_KEY != null;
     }
 
     public async getAuthRequest(_arg?: { endpointMetadata?: core.EndpointMetadata }): Promise<core.AuthRequest> {
-        const apiKey = await core.Supplier.get(this.headerValue);
+        const apiKey = (await core.Supplier.get(this.headerValue)) ?? process.env?.PULSE_API_KEY;
         if (apiKey == null) {
             throw new errors.PulseError({
-                message: "Please specify a apiKey by passing it in to the constructor",
+                message:
+                    "Please specify a apiKey by either passing it in to the constructor or initializing a PULSE_API_KEY environment variable",
             });
         }
 
