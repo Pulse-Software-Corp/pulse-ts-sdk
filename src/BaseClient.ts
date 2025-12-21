@@ -9,6 +9,8 @@ export type BaseClientOptions = {
     environment?: core.Supplier<environments.PulseEnvironment | string>;
     /** Specify a custom URL to connect the client to. */
     baseUrl?: core.Supplier<string>;
+    /** Override the x-api-key header */
+    apiKey?: core.Supplier<string | undefined>;
     /** Additional headers to include in requests. */
     headers?: Record<string, string | core.Supplier<string | null | undefined> | null | undefined>;
     /** The default maximum time to wait for a response in seconds. */
@@ -28,6 +30,8 @@ export interface BaseRequestOptions {
     maxRetries?: number;
     /** A hook to abort the request. */
     abortSignal?: AbortSignal;
+    /** Override the x-api-key header */
+    apiKey?: string | undefined;
     /** Additional query string parameters to include in the request. */
     queryParams?: Record<string, unknown>;
     /** Additional headers to include in the request. */
@@ -51,10 +55,11 @@ export function normalizeClientOptions<T extends BaseClientOptions = BaseClientO
         {
             "X-Fern-Language": "JavaScript",
             "X-Fern-SDK-Name": "pulse-ts-sdk",
-            "X-Fern-SDK-Version": "0.0.55",
-            "User-Agent": "pulse-ts-sdk/0.0.55",
+            "X-Fern-SDK-Version": "0.0.56",
+            "User-Agent": "pulse-ts-sdk/0.0.56",
             "X-Fern-Runtime": core.RUNTIME.type,
             "X-Fern-Runtime-Version": core.RUNTIME.version,
+            "x-api-key": options?.apiKey,
         },
         options?.headers,
     );

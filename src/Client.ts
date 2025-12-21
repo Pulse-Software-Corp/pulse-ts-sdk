@@ -131,7 +131,10 @@ export class PulseClient {
         const _maybeEncodedRequest = await _request.getRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
+            mergeOnlyDefinedHeaders({
+                "x-api-key": requestOptions?.apiKey ?? this._options?.apiKey,
+                ..._maybeEncodedRequest.headers,
+            }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -273,7 +276,10 @@ export class PulseClient {
         const _maybeEncodedRequest = await _request.getRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             this._options?.headers,
-            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
+            mergeOnlyDefinedHeaders({
+                "x-api-key": requestOptions?.apiKey ?? this._options?.apiKey,
+                ..._maybeEncodedRequest.headers,
+            }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({

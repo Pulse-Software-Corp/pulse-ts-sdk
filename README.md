@@ -42,7 +42,7 @@ Instantiate and use the client with the following:
 import { createReadStream } from "fs";
 import { PulseClient } from "pulse-ts-sdk";
 
-const client = new PulseClient({ apiKey: "YOUR_API_KEY" });
+const client = new PulseClient({ apiKey: "YOUR_API_KEY", apiKey: "YOUR_API_KEY" });
 await client.extract({});
 ```
 
@@ -87,7 +87,7 @@ You can upload files using the client:
 import { createReadStream } from "fs";
 import { PulseClient } from "pulse-ts-sdk";
 
-const client = new PulseClient({ apiKey: "YOUR_API_KEY" });
+const client = new PulseClient({ apiKey: "YOUR_API_KEY", apiKey: "YOUR_API_KEY" });
 await client.extract({});
 ```
 The client accepts a variety of types for file upload parameters:
