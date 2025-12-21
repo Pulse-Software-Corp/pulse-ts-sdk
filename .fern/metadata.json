@@ -5,5 +5,5 @@
     "generatorConfig": {
         "namespaceExport": "Pulse"
     },
-    "sdkVersion": "0.0.59"
+    "sdkVersion": "0.0.60"
 }
