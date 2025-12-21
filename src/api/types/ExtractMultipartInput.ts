@@ -4,10 +4,6 @@
  * Input schema for multipart/form-data requests (file upload or fileUrl).
  */
 export interface ExtractMultipartInput {
-    /** Document to upload directly. Required unless fileUrl is specified. */
-    file: string;
-    /** Public or pre-signed URL that Pulse will download and extract. */
-    fileUrl?: string;
     /** Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object. */
     structuredOutput?: ExtractMultipartInput.StructuredOutput;
     /** (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation. */

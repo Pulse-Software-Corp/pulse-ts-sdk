@@ -11,9 +11,9 @@
 <dl>
 <dd>
 
-Performs a synchronous extraction job against an uploaded document or a
-remote file URL. The request accepts a variety of configuration options
-used by the Pulse extraction pipeline.
+The primary endpoint for the Pulse API. Parses uploaded documents or remote
+file URLs and returns rich markdown content with optional structured data
+extraction based on user-provided schemas and extraction options.
 </dd>
 </dl>
 </dd>
@@ -146,8 +146,8 @@ await client.extractAsync({
 <dl>
 <dd>
 
-Retrieves the latest status and metadata for an asynchronous extraction job
-that was previously submitted via `/extract_async`.
+Check the status and retrieve results of an asynchronous job
+(e.g., submitted via `/extract_async`).
 </dd>
 </dl>
 </dd>
@@ -212,7 +212,7 @@ await client.jobs.getJob({
 <dl>
 <dd>
 
-Attempts to cancel an asynchronous extraction job that is currently pending
+Attempts to cancel an asynchronous job that is currently pending
 or processing. Jobs that have already completed will remain unchanged.
 </dd>
 </dl>
