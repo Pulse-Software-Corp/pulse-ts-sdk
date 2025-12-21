@@ -5,8 +5,9 @@ import { JobsClient } from "./api/resources/jobs/client/Client.js";
 import { WebhooksClient } from "./api/resources/webhooks/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
 import { type NormalizedClientOptions, normalizeClientOptions } from "./BaseClient.js";
-import { mergeHeaders } from "./core/headers.js";
+import { mergeHeaders, mergeOnlyDefinedHeaders } from "./core/headers.js";
 import * as core from "./core/index.js";
+import { toJson } from "./core/json.js";
 import * as environments from "./environments.js";
 import { handleNonStatusCodeError } from "./errors/handleNonStatusCodeError.js";
 import * as errors from "./errors/index.js";
@@ -39,7 +40,7 @@ export class PulseClient {
      * file URLs and returns rich markdown content with optional structured data
      * extraction based on user-provided schemas and extraction options.
      *
-     * @param {Pulse.ExtractJsonInput} request
+     * @param {Pulse.ExtractRequest} request
      * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Pulse.BadRequestError}
@@ -47,22 +48,92 @@ export class PulseClient {
      * @throws {@link Pulse.TooManyRequestsError}
      *
      * @example
-     *     await client.extract({
-     *         fileUrl: "fileUrl"
-     *     })
+     *     import { createReadStream } from "fs";
+     *     await client.extract({})
      */
     public extract(
-        request: Pulse.ExtractJsonInput,
+        request: Pulse.ExtractRequest,
         requestOptions?: PulseClient.RequestOptions,
     ): core.HttpResponsePromise<Pulse.ExtractResponse> {
         return core.HttpResponsePromise.fromPromise(this.__extract(request, requestOptions));
     }
 
     private async __extract(
-        request: Pulse.ExtractJsonInput,
+        request: Pulse.ExtractRequest,
         requestOptions?: PulseClient.RequestOptions,
     ): Promise<core.WithRawResponse<Pulse.ExtractResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _request = await core.newFormData();
+        if (request.file != null) {
+            await _request.appendFile("file", request.file);
+        }
+
+        if (request.fileUrl != null) {
+            _request.append("fileUrl", request.fileUrl);
+        }
+
+        if (request.structuredOutput != null) {
+            _request.append("structuredOutput", toJson(request.structuredOutput));
+        }
+
+        if (request.schema != null) {
+            _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
+        }
+
+        if (request.experimentalSchema != null) {
+            _request.append(
+                "experimentalSchema",
+                typeof request.experimentalSchema === "string"
+                    ? request.experimentalSchema
+                    : toJson(request.experimentalSchema),
+            );
+        }
+
+        if (request.schemaPrompt != null) {
+            _request.append("schemaPrompt", request.schemaPrompt);
+        }
+
+        if (request.customPrompt != null) {
+            _request.append("customPrompt", request.customPrompt);
+        }
+
+        if (request.chunking != null) {
+            _request.append("chunking", request.chunking);
+        }
+
+        if (request.chunkSize != null) {
+            _request.append("chunkSize", request.chunkSize.toString());
+        }
+
+        if (request.pages != null) {
+            _request.append("pages", request.pages);
+        }
+
+        if (request.extractFigure != null) {
+            _request.append("extractFigure", request.extractFigure.toString());
+        }
+
+        if (request.figureDescription != null) {
+            _request.append("figureDescription", request.figureDescription.toString());
+        }
+
+        if (request.returnHtml != null) {
+            _request.append("returnHtml", request.returnHtml.toString());
+        }
+
+        if (request.thinking != null) {
+            _request.append("thinking", request.thinking.toString());
+        }
+
+        if (request.storage != null) {
+            _request.append("storage", toJson(request.storage));
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
+            requestOptions?.headers,
+        );
         const _response = await core.fetcher({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -72,10 +143,10 @@ export class PulseClient {
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
@@ -111,7 +182,7 @@ export class PulseClient {
      * synchronous options but returns immediately with a job identifier that
      * clients can poll for completion status.
      *
-     * @param {Pulse.ExtractJsonInput} request
+     * @param {Pulse.ExtractAsyncRequest} request
      * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Pulse.BadRequestError}
@@ -119,22 +190,92 @@ export class PulseClient {
      * @throws {@link Pulse.TooManyRequestsError}
      *
      * @example
-     *     await client.extractAsync({
-     *         fileUrl: "fileUrl"
-     *     })
+     *     import { createReadStream } from "fs";
+     *     await client.extractAsync({})
      */
     public extractAsync(
-        request: Pulse.ExtractJsonInput,
+        request: Pulse.ExtractAsyncRequest,
         requestOptions?: PulseClient.RequestOptions,
     ): core.HttpResponsePromise<Pulse.ExtractAsyncResponse> {
         return core.HttpResponsePromise.fromPromise(this.__extractAsync(request, requestOptions));
     }
 
     private async __extractAsync(
-        request: Pulse.ExtractJsonInput,
+        request: Pulse.ExtractAsyncRequest,
         requestOptions?: PulseClient.RequestOptions,
     ): Promise<core.WithRawResponse<Pulse.ExtractAsyncResponse>> {
-        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(this._options?.headers, requestOptions?.headers);
+        const _request = await core.newFormData();
+        if (request.file != null) {
+            await _request.appendFile("file", request.file);
+        }
+
+        if (request.fileUrl != null) {
+            _request.append("fileUrl", request.fileUrl);
+        }
+
+        if (request.structuredOutput != null) {
+            _request.append("structuredOutput", toJson(request.structuredOutput));
+        }
+
+        if (request.schema != null) {
+            _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
+        }
+
+        if (request.experimentalSchema != null) {
+            _request.append(
+                "experimentalSchema",
+                typeof request.experimentalSchema === "string"
+                    ? request.experimentalSchema
+                    : toJson(request.experimentalSchema),
+            );
+        }
+
+        if (request.schemaPrompt != null) {
+            _request.append("schemaPrompt", request.schemaPrompt);
+        }
+
+        if (request.customPrompt != null) {
+            _request.append("customPrompt", request.customPrompt);
+        }
+
+        if (request.chunking != null) {
+            _request.append("chunking", request.chunking);
+        }
+
+        if (request.chunkSize != null) {
+            _request.append("chunkSize", request.chunkSize.toString());
+        }
+
+        if (request.pages != null) {
+            _request.append("pages", request.pages);
+        }
+
+        if (request.extractFigure != null) {
+            _request.append("extractFigure", request.extractFigure.toString());
+        }
+
+        if (request.figureDescription != null) {
+            _request.append("figureDescription", request.figureDescription.toString());
+        }
+
+        if (request.returnHtml != null) {
+            _request.append("returnHtml", request.returnHtml.toString());
+        }
+
+        if (request.thinking != null) {
+            _request.append("thinking", request.thinking.toString());
+        }
+
+        if (request.storage != null) {
+            _request.append("storage", toJson(request.storage));
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            this._options?.headers,
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
+            requestOptions?.headers,
+        );
         const _response = await core.fetcher({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
@@ -144,10 +285,10 @@ export class PulseClient {
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
             timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,

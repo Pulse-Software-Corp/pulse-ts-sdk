@@ -3,7 +3,7 @@
 /**
  * Document source definition for multipart/form-data requests. Provide exactly one of `file` (direct upload) or `fileUrl` (remote URL).
  */
-export interface MultipartSource {
+export interface ExtractSource {
     /** Document to upload directly. Required unless fileUrl is provided. */
     file?: string;
     /** Public or pre-signed URL that Pulse will download and extract. Required unless file is provided. */

@@ -28,9 +28,7 @@ extraction based on user-provided schemas and extraction options.
 <dd>
 
 ```typescript
-await client.extract({
-    fileUrl: "fileUrl"
-});
+await client.extract({});
 
 ```
 </dd>
@@ -46,7 +44,7 @@ await client.extract({
 <dl>
 <dd>
 
-**request:** `Pulse.ExtractJsonInput` 
+**request:** `Pulse.ExtractRequest` 
     
 </dd>
 </dl>
@@ -95,9 +93,7 @@ clients can poll for completion status.
 <dd>
 
 ```typescript
-await client.extractAsync({
-    fileUrl: "fileUrl"
-});
+await client.extractAsync({});
 
 ```
 </dd>
@@ -113,7 +109,7 @@ await client.extractAsync({
 <dl>
 <dd>
 
-**request:** `Pulse.ExtractJsonInput` 
+**request:** `Pulse.ExtractAsyncRequest` 
     
 </dd>
 </dl>
