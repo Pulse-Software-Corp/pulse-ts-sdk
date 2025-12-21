@@ -3,12 +3,9 @@
 /**
  * Document source definition for multipart/form-data requests. Provide exactly one of `file` (direct upload) or `fileUrl` (remote URL).
  */
-export type MultipartSource =
-    | {
-          file: string;
-          fileUrl?: unknown | undefined;
-      }
-    | {
-          fileUrl: string;
-          file?: unknown | undefined;
-      };
+export interface MultipartSource {
+    /** Document to upload directly. Required unless fileUrl is provided. */
+    file?: string;
+    /** Public or pre-signed URL that Pulse will download and extract. Required unless file is provided. */
+    fileUrl?: string;
+}
