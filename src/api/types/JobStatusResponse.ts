@@ -3,17 +3,17 @@
 import type * as Pulse from "../index.js";
 
 /**
- * Current status and metadata for an asynchronous extraction job.
+ * Current status and metadata for an asynchronous job.
  */
 export interface JobStatusResponse {
-    /** Identifier assigned to the asynchronous extraction job. */
+    /** Identifier assigned to the asynchronous job. */
     job_id: string;
     status: Pulse.JobStatus;
     /** Timestamp when the job was accepted. */
     created_at: string;
     /** Timestamp of the last status update, if available. */
     updated_at?: string;
-    /** Structured payload that contains extraction output when the job is completed. */
+    /** Structured payload that contains output when the job is completed. */
     result?: Record<string, unknown>;
     /** Error message describing why the job failed, if applicable. */
     error?: string;

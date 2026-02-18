@@ -4,7 +4,7 @@ import * as Pulse from "./api/index.js";
 import { JobsClient } from "./api/resources/jobs/client/Client.js";
 import { WebhooksClient } from "./api/resources/webhooks/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
-import { type NormalizedClientOptions, normalizeClientOptions } from "./BaseClient.js";
+import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "./BaseClient.js";
 import { mergeHeaders, mergeOnlyDefinedHeaders } from "./core/headers.js";
 import * as core from "./core/index.js";
 import { toJson } from "./core/json.js";
@@ -19,12 +19,12 @@ export declare namespace PulseClient {
 }
 
 export class PulseClient {
-    protected readonly _options: NormalizedClientOptions<PulseClient.Options>;
+    protected readonly _options: NormalizedClientOptionsWithAuth<PulseClient.Options>;
     protected _jobs: JobsClient | undefined;
     protected _webhooks: WebhooksClient | undefined;
 
     constructor(options: PulseClient.Options = {}) {
-        this._options = normalizeClientOptions(options);
+        this._options = normalizeClientOptionsWithAuth(options);
     }
 
     public get jobs(): JobsClient {
@@ -39,6 +39,13 @@ export class PulseClient {
      * The primary endpoint for the Pulse API. Parses uploaded documents or remote
      * file URLs and returns rich markdown content with optional structured data
      * extraction based on user-provided schemas and extraction options.
+     *
+     * Set `async: true` to return immediately with a job_id for polling via
+     * GET /job/{jobId}. Otherwise processes synchronously.
+     *
+     * **Note:** Both sync and async modes return HTTP 200. When `async` is true
+     * the response body contains `{ job_id, status }` instead of the full
+     * extraction result.
      *
      * @param {Pulse.ExtractRequest} request
      * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -116,8 +123,16 @@ export class PulseClient {
             _request.append("figureDescription", request.figureDescription.toString());
         }
 
+        if (request.showImages != null) {
+            _request.append("showImages", request.showImages.toString());
+        }
+
         if (request.returnHtml != null) {
             _request.append("returnHtml", request.returnHtml.toString());
+        }
+
+        if (request.effort != null) {
+            _request.append("effort", request.effort.toString());
         }
 
         if (request.thinking != null) {
@@ -128,8 +143,14 @@ export class PulseClient {
             _request.append("storage", toJson(request.storage));
         }
 
+        if (request.async != null) {
+            _request.append("async", request.async.toString());
+        }
+
         const _maybeEncodedRequest = await _request.getRequest();
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
             this._options?.headers,
             mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
@@ -178,6 +199,8 @@ export class PulseClient {
     }
 
     /**
+     * **Deprecated**: Use `/extract` with `async: true` instead.
+     *
      * Starts an asynchronous extraction job. The request mirrors the
      * synchronous options but returns immediately with a job identifier that
      * clients can poll for completion status.
@@ -196,14 +219,14 @@ export class PulseClient {
     public extractAsync(
         request: Pulse.ExtractAsyncRequest,
         requestOptions?: PulseClient.RequestOptions,
-    ): core.HttpResponsePromise<Pulse.ExtractAsyncResponse> {
+    ): core.HttpResponsePromise<Pulse.AsyncSubmissionResponse> {
         return core.HttpResponsePromise.fromPromise(this.__extractAsync(request, requestOptions));
     }
 
     private async __extractAsync(
         request: Pulse.ExtractAsyncRequest,
         requestOptions?: PulseClient.RequestOptions,
-    ): Promise<core.WithRawResponse<Pulse.ExtractAsyncResponse>> {
+    ): Promise<core.WithRawResponse<Pulse.AsyncSubmissionResponse>> {
         const _request = await core.newFormData();
         if (request.file != null) {
             await _request.appendFile("file", request.file);
@@ -258,8 +281,16 @@ export class PulseClient {
             _request.append("figureDescription", request.figureDescription.toString());
         }
 
+        if (request.showImages != null) {
+            _request.append("showImages", request.showImages.toString());
+        }
+
         if (request.returnHtml != null) {
             _request.append("returnHtml", request.returnHtml.toString());
+        }
+
+        if (request.effort != null) {
+            _request.append("effort", request.effort.toString());
         }
 
         if (request.thinking != null) {
@@ -270,8 +301,14 @@ export class PulseClient {
             _request.append("storage", toJson(request.storage));
         }
 
+        if (request.async != null) {
+            _request.append("async", request.async.toString());
+        }
+
         const _maybeEncodedRequest = await _request.getRequest();
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
             this._options?.headers,
             mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
@@ -296,7 +333,7 @@ export class PulseClient {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Pulse.ExtractAsyncResponse, rawResponse: _response.rawResponse };
+            return { data: _response.body as Pulse.AsyncSubmissionResponse, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
@@ -317,5 +354,184 @@ export class PulseClient {
         }
 
         return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/extract_async");
+    }
+
+    /**
+     * Identify which pages of a document contain each topic/section.
+     * Takes an existing extraction and a list of topics, then uses AI to
+     * identify which PDF pages contain content related to each topic.
+     *
+     * The result is persisted with a `split_id` that can be used with
+     * the `/schema` endpoint (split mode) for targeted schema extraction on
+     * specific page groups.
+     *
+     * Set `async: true` to return immediately with a job_id for polling.
+     *
+     * @param {Pulse.SplitInput} request
+     * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Pulse.BadRequestError}
+     * @throws {@link Pulse.UnauthorizedError}
+     * @throws {@link Pulse.NotFoundError}
+     * @throws {@link Pulse.TooManyRequestsError}
+     * @throws {@link Pulse.InternalServerError}
+     *
+     * @example
+     *     await client.split({
+     *         extraction_id: "extraction_id"
+     *     })
+     */
+    public split(
+        request: Pulse.SplitInput,
+        requestOptions?: PulseClient.RequestOptions,
+    ): core.HttpResponsePromise<Pulse.SplitResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__split(request, requestOptions));
+    }
+
+    private async __split(
+        request: Pulse.SplitInput,
+        requestOptions?: PulseClient.RequestOptions,
+    ): Promise<core.WithRawResponse<Pulse.SplitResponse>> {
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PulseEnvironment.Default,
+                "split",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Pulse.SplitResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Pulse.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Pulse.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Pulse.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Pulse.TooManyRequestsError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Pulse.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PulseError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/split");
+    }
+
+    /**
+     * Apply schema extraction to a previously saved extraction. The mode is
+     * inferred from the input:
+     *
+     * **Single mode** — Provide `extraction_id` + `schema_config` (or
+     * `schema_config_id`) to apply one schema to the entire document.
+     *
+     * **Split mode** — Provide `split_id` + `split_schema_config` to apply
+     * different schemas to different page groups from a prior `/split` call.
+     * Each topic can have its own schema, prompt, and effort setting.
+     *
+     * Creates a versioned schema record that can be retrieved later.
+     * Set `async: true` to return immediately with a job_id for polling.
+     *
+     * @param {Pulse.SchemaInput} request
+     * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
+     *
+     * @throws {@link Pulse.BadRequestError}
+     * @throws {@link Pulse.UnauthorizedError}
+     * @throws {@link Pulse.NotFoundError}
+     * @throws {@link Pulse.TooManyRequestsError}
+     * @throws {@link Pulse.InternalServerError}
+     *
+     * @example
+     *     await client.schema()
+     */
+    public schema(
+        request: Pulse.SchemaInput = {},
+        requestOptions?: PulseClient.RequestOptions,
+    ): core.HttpResponsePromise<Pulse.SchemaResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__schema(request, requestOptions));
+    }
+
+    private async __schema(
+        request: Pulse.SchemaInput = {},
+        requestOptions?: PulseClient.RequestOptions,
+    ): Promise<core.WithRawResponse<Pulse.SchemaResponse>> {
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PulseEnvironment.Default,
+                "schema",
+            ),
+            method: "POST",
+            headers: _headers,
+            contentType: "application/json",
+            queryParameters: requestOptions?.queryParams,
+            requestType: "json",
+            body: request,
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body as Pulse.SchemaResponse, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Pulse.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Pulse.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Pulse.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 429:
+                    throw new Pulse.TooManyRequestsError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Pulse.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PulseError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/schema");
     }
 }

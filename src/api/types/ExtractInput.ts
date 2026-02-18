@@ -8,7 +8,7 @@ export interface ExtractInput {
     file?: string;
     /** Public or pre-signed URL that Pulse will download and extract. Required unless file is provided. */
     fileUrl?: string;
-    /** Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object. */
+    /** **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version. */
     structuredOutput?: ExtractInput.StructuredOutput;
     /** (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation. */
     schema?: ExtractInput.Schema;
@@ -28,17 +28,23 @@ export interface ExtractInput {
     extractFigure?: boolean;
     /** Toggle to generate descriptive captions for extracted figures. */
     figureDescription?: boolean;
+    /** Embed base64-encoded images inline in figure tags in the output. Increases response size. */
+    showImages?: boolean;
     /** Whether to include HTML representation alongside markdown in the response. */
     returnHtml?: boolean;
+    /** Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency. */
+    effort?: boolean;
     /** (Deprecated) Enables expanded rationale output for debugging. */
     thinking?: boolean;
     /** Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created. */
     storage?: ExtractInput.Storage;
+    /** If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously. */
+    async?: boolean;
 }
 
 export namespace ExtractInput {
     /**
-     * Recommended method for schema-guided extraction. Contains the schema and optional prompt in a single object.
+     * **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
      */
     export interface StructuredOutput {
         /** JSON schema describing the structured data to extract. */
