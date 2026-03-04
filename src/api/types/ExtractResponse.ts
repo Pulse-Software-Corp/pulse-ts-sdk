@@ -3,17 +3,13 @@
 import type * as Pulse from "../index.js";
 
 /**
- * Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown (or HTML), optional structured data, chunked content, bounding boxes, and storage metadata.
+ * Full extraction result returned by the synchronous `/extract` endpoint. Contains the extracted markdown, optional extensions output, bounding boxes, and storage metadata.
  */
 export interface ExtractResponse {
-    /** Primary markdown content extracted from the document. Present when `returnHtml` is false or omitted. */
+    /** Primary markdown content extracted from the document. Always present in the new format. */
     markdown?: string;
-    /** HTML representation of the extracted content. Present when `returnHtml` is true. */
-    html?: string;
-    /** Structured data extracted using the provided schema. Only present when a schema was included in the request (via `structuredOutput` or legacy `schema` field). */
-    structured_output?: Pulse.StructuredOutputResult;
-    /** Document content split into chunks using the requested strategies. Only present when `chunking` was specified in the request. */
-    chunks?: ExtractResponse.Chunks;
+    /** Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present. */
+    extensions?: ExtractResponse.Extensions;
     /** Positional bounding-box data for text, titles, headers, footers, images, and tables. Used by the frontend for annotation overlays. */
     bounding_boxes?: Record<string, unknown>;
     /** Persisted extraction ID. Present when storage is enabled (default). Use this ID with `/split` and `/schema` endpoints. */
@@ -22,20 +18,26 @@ export interface ExtractResponse {
     extraction_url?: string;
     /** Number of pages processed. */
     page_count?: number;
-    /** Echo of the schema that was applied. Present when a schema was included in the request. */
-    input_schema?: Record<string, unknown>;
     /** Billing tier and usage information. */
+    plan_info?: ExtractResponse.PlanInfo;
+    /** Non-fatal warnings generated during extraction. Includes deprecation notices when legacy input parameters are used, as well as processing warnings (e.g. word-level bounding box limitations). */
+    warnings?: string[];
+    /** **Deprecated** — Use `extensions.altOutputs.html` instead. HTML representation of the extracted content. Present when the legacy `returnHtml` input was used. */
+    html?: string;
+    /** **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used. */
+    chunks?: ExtractResponse.Chunks;
+    /** **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used. */
     "plan-info"?: ExtractResponse.PlanInfo;
-    /** Error message if schema processing failed. The extraction still succeeds but structured data may be missing. */
+    /** **Deprecated** — Only present when the deprecated `structuredOutput` input parameter was used. Use the `/schema` endpoint after extraction instead. */
+    structured_output?: Pulse.StructuredOutputResult;
+    /** **Deprecated** — Echo of the schema that was applied. Only present when the deprecated `structuredOutput` input parameter was used. */
+    input_schema?: Record<string, unknown>;
+    /** **Deprecated** — Error message if schema processing failed via the deprecated `structuredOutput` input parameter. */
     schema_error?: string;
-    /** Time spent on schema processing, in seconds. */
-    schema_processing_time_seconds?: number;
     /** **Deprecated** — Alias for `markdown`. Included for backward compatibility with older SDK versions. Prefer `markdown`. */
     content?: string;
     /** **Deprecated** — Identifier assigned to the extraction job. Retained for backward compatibility. */
     job_id?: string;
-    /** **Deprecated** — Non-fatal warnings generated during extraction. Retained for backward compatibility. */
-    warnings?: string[];
     /** **Deprecated** — Additional metadata supplied by the backend. Retained for backward compatibility. */
     metadata?: Record<string, unknown>;
     /** Accepts any additional properties */
@@ -44,28 +46,103 @@ export interface ExtractResponse {
 
 export namespace ExtractResponse {
     /**
-     * Document content split into chunks using the requested strategies. Only present when `chunking` was specified in the request.
+     * Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present.
+     */
+    export interface Extensions {
+        /** Chunk results by strategy. Present when `extensions.chunking` was provided in the request. */
+        chunking?: Extensions.Chunking;
+        /** Merge tables result/metadata. Present when `extensions.mergeTables` was enabled. */
+        mergeTables?: Record<string, unknown>;
+        /** Footnote linking result/metadata. Present when `extensions.footnoteReferences` was enabled. */
+        footnoteReferences?: Record<string, unknown>;
+        /** Alternate output formats. Each key corresponds to an enabled alt output. */
+        altOutputs?: Extensions.AltOutputs;
+    }
+
+    export namespace Extensions {
+        /**
+         * Chunk results by strategy. Present when `extensions.chunking` was provided in the request.
+         */
+        export interface Chunking {
+            /** Semantically-segmented chunks. */
+            semantic?: string[];
+            /** Chunks split by document headers/headings. */
+            header?: string[];
+            /** One chunk per page. */
+            page?: string[];
+            /** Recursively-split chunks respecting size limits. */
+            recursive?: string[];
+        }
+
+        /**
+         * Alternate output formats. Each key corresponds to an enabled alt output.
+         */
+        export interface AltOutputs {
+            /** Word-level bounding box data. Present when `extensions.altOutputs.wlbb` was enabled and input is a PDF. */
+            wlbb?: AltOutputs.Wlbb;
+            /** HTML representation of the document. Present when `extensions.altOutputs.returnHtml` was enabled. */
+            html?: string;
+            /** XML representation of the document. Present when `extensions.altOutputs.returnXml` was enabled. (WIP) */
+            xml?: string;
+        }
+
+        export namespace AltOutputs {
+            /**
+             * Word-level bounding box data. Present when `extensions.altOutputs.wlbb` was enabled and input is a PDF.
+             */
+            export interface Wlbb {
+                /** List of detected words with their positions. */
+                words?: Wlbb.Words.Item[];
+                /** Error message if word-level extraction failed. */
+                error?: string;
+            }
+
+            export namespace Wlbb {
+                export type Words = Words.Item[];
+
+                export namespace Words {
+                    export interface Item {
+                        /** Unique identifier for the word (e.g. "w-1", "w-2", …). */
+                        id?: string;
+                        /** The recognised word text. */
+                        text?: string;
+                        /** 1-indexed page number in the original document. */
+                        page_number?: number;
+                        /** Flat 4-corner polygon: [x1,y1, x2,y2, x3,y3, x4,y4]. All coordinates normalised to 0–1 range. */
+                        bounding_box?: number[];
+                        /** Recognition confidence score (0–1). */
+                        average_word_confidence?: number;
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
+     */
+    export interface PlanInfo {
+        tier?: string;
+        pages_used?: number;
+        note?: string;
+    }
+
+    /**
+     * **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used.
      */
     export interface Chunks {
-        /** Semantically-segmented chunks. */
         semantic?: string[];
-        /** Chunks split by document headers/headings. */
         header?: string[];
-        /** One chunk per page. */
         page?: string[];
-        /** Recursively-split chunks respecting size limits. */
         recursive?: string[];
     }
 
     /**
-     * Billing tier and usage information.
+     * **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
      */
     export interface PlanInfo {
-        /** Current plan tier name. */
         tier?: string;
-        /** Cumulative pages used after this extraction. */
         pages_used?: number;
-        /** Human-readable plan note. */
         note?: string;
     }
 }

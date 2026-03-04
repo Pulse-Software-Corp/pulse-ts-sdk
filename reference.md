@@ -17,10 +17,6 @@ extraction based on user-provided schemas and extraction options.
 
 Set `async: true` to return immediately with a job_id for polling via
 GET /job/{jobId}. Otherwise processes synchronously.
-
-**Note:** Both sync and async modes return HTTP 200. When `async` is true
-the response body contains `{ job_id, status }` instead of the full
-extraction result.
 </dd>
 </dl>
 </dd>

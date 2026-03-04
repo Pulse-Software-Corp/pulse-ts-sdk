@@ -4,59 +4,102 @@
  * Common extraction options shared by synchronous and asynchronous endpoints.
  */
 export interface ExtractOptions {
-    /** **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version. */
-    structuredOutput?: ExtractOptions.StructuredOutput;
-    /** (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation. */
-    schema?: ExtractOptions.Schema;
-    /** (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation. */
-    experimentalSchema?: ExtractOptions.ExperimentalSchema;
-    /** (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead. */
-    schemaPrompt?: string;
-    /** (Deprecated) Custom instructions that augment the default extraction behaviour. */
-    customPrompt?: string;
-    /** Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). */
-    chunking?: string;
-    /** Override for maximum characters per chunk when chunking is enabled. */
-    chunkSize?: number;
     /** Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`. */
     pages?: string;
-    /** Toggle to enable figure extraction in results. */
-    extractFigure?: boolean;
-    /** Toggle to generate descriptive captions for extracted figures. */
-    figureDescription?: boolean;
-    /** Embed base64-encoded images inline in figure tags in the output. Increases response size. */
-    showImages?: boolean;
-    /** Whether to include HTML representation alongside markdown in the response. */
-    returnHtml?: boolean;
-    /** Enable extended reasoning mode for higher quality extraction on complex documents. Uses a more powerful model at higher latency. */
-    effort?: boolean;
-    /** (Deprecated) Enables expanded rationale output for debugging. */
-    thinking?: boolean;
+    /** Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response. */
+    figureProcessing?: ExtractOptions.FigureProcessing;
+    /** Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`. */
+    extensions?: ExtractOptions.Extensions;
     /** Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created. */
     storage?: ExtractOptions.Storage;
     /** If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously. */
     async?: boolean;
+    /** **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version. */
+    structuredOutput?: ExtractOptions.StructuredOutput;
+    /** (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation. */
+    schema?: ExtractOptions.Schema;
+    /** (Deprecated) Natural language prompt for schema-guided extraction. Use structuredOutput.schemaPrompt instead. */
+    schemaPrompt?: string;
+    /** (Deprecated) Custom instructions that augment the default extraction behaviour. Use `figureProcessing` or `extensions` instead. */
+    customPrompt?: string;
+    /** **⚠️ DEPRECATED** — Use `extensions.chunking.chunkTypes` instead. Comma-separated list of chunking strategies to apply (for example `semantic,header,page,recursive`). Still accepted for backward compatibility. */
+    chunking?: string;
+    /** **⚠️ DEPRECATED** — Use `extensions.chunking.chunkSize` instead. Override for maximum characters per chunk when chunking is enabled. */
+    chunkSize?: number;
+    /** **⚠️ DEPRECATED** — Toggle to enable figure extraction in results. */
+    extractFigure?: boolean;
+    /** **⚠️ DEPRECATED** — Use `figureProcessing.description` instead. Toggle to generate descriptive captions for extracted figures. */
+    figureDescription?: boolean;
+    /** **⚠️ DEPRECATED** — Use `figureProcessing.showImages` instead. Embed base64-encoded images inline in figure tags in the output. Increases response size. */
+    showImages?: boolean;
+    /** **⚠️ DEPRECATED** — Use `extensions.altOutputs.returnHtml` instead. Whether to include HTML representation alongside markdown in the response. */
+    returnHtml?: boolean;
+    /** (Deprecated) Enables expanded rationale output for debugging. */
+    thinking?: boolean;
 }
 
 export namespace ExtractOptions {
     /**
-     * **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+     * Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
      */
-    export interface StructuredOutput {
-        /** JSON schema describing the structured data to extract. */
-        schema?: Record<string, unknown>;
-        /** Natural language prompt with additional extraction instructions. */
-        schemaPrompt?: string;
+    export interface FigureProcessing {
+        /** Generate descriptive captions for extracted figures. */
+        description?: boolean;
+        /** Embed base64-encoded images inline in figure tags in the output. Increases response size. */
+        showImages?: boolean;
     }
 
     /**
-     * (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+     * Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
      */
-    export type Schema = Record<string, unknown> | string;
-    /**
-     * (Deprecated) Experimental schema definition used for feature flagged behaviour. Accepts either a JSON object or a stringified JSON representation.
-     */
-    export type ExperimentalSchema = Record<string, unknown> | string;
+    export interface Extensions {
+        /** Merge tables that span multiple pages into a single table. */
+        mergeTables?: boolean;
+        /** Link footnote markers to their corresponding footnote text. */
+        footnoteReferences?: boolean;
+        /** Chunking configuration. When provided, the document is split into chunks using the specified strategies. Results appear in `response.extensions.chunking`. */
+        chunking?: Extensions.Chunking;
+        /** Alternate output format options. Each enabled format produces a corresponding field under `response.extensions.altOutputs`. */
+        altOutputs?: Extensions.AltOutputs;
+    }
+
+    export namespace Extensions {
+        /**
+         * Chunking configuration. When provided, the document is split into chunks using the specified strategies. Results appear in `response.extensions.chunking`.
+         */
+        export interface Chunking {
+            /** List of chunking strategies to apply (e.g. `["semantic", "header", "page", "recursive"]`). */
+            chunkTypes?: Chunking.ChunkTypes.Item[];
+            /** Maximum characters per chunk. */
+            chunkSize?: number;
+        }
+
+        export namespace Chunking {
+            export type ChunkTypes = ChunkTypes.Item[];
+
+            export namespace ChunkTypes {
+                export const Item = {
+                    Semantic: "semantic",
+                    Header: "header",
+                    Page: "page",
+                    Recursive: "recursive",
+                } as const;
+                export type Item = (typeof Item)[keyof typeof Item];
+            }
+        }
+
+        /**
+         * Alternate output format options. Each enabled format produces a corresponding field under `response.extensions.altOutputs`.
+         */
+        export interface AltOutputs {
+            /** Enable word-level bounding boxes. Runs an additional OCR model to derive bounding boxes for each word. Only applies to PDFs. Results in `response.extensions.altOutputs.wlbb`. */
+            wlbb?: boolean;
+            /** Include an HTML representation of the document. When enabled, `response.markdown` is still present and the HTML is available at `response.extensions.altOutputs.html`. */
+            returnHtml?: boolean;
+            /** Include an XML representation of the document. Results in `response.extensions.altOutputs.xml`. (Work in progress.) */
+            returnXml?: boolean;
+        }
+    }
 
     /**
      * Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created.
@@ -66,5 +109,24 @@ export namespace ExtractOptions {
         enabled?: boolean;
         /** Target folder name to save the extraction to. Creates the folder if it doesn't exist. */
         folderName?: string;
+        /** Target folder ID to save the extraction to. Takes precedence over folderName if both are provided. */
+        folderId?: string;
     }
+
+    /**
+     * **⚠️ DEPRECATED** — Use the `/schema` endpoint after extraction instead. Pass the `extraction_id` from the extract response to `/schema` with your `schema_config`. This parameter still works for backward compatibility but will be removed in a future version.
+     */
+    export interface StructuredOutput {
+        /** JSON schema describing the structured data to extract. */
+        schema?: Record<string, unknown>;
+        /** Natural language prompt with additional extraction instructions. */
+        schemaPrompt?: string;
+        /** Use higher quality model for better results. When true, uses a more capable model at the cost of higher latency. */
+        effort?: boolean;
+    }
+
+    /**
+     * (Deprecated) JSON schema describing structured data to extract. Use structuredOutput instead. Accepts either a JSON object or a stringified JSON representation.
+     */
+    export type Schema = Record<string, unknown> | string;
 }

@@ -43,10 +43,6 @@ export class PulseClient {
      * Set `async: true` to return immediately with a job_id for polling via
      * GET /job/{jobId}. Otherwise processes synchronously.
      *
-     * **Note:** Both sync and async modes return HTTP 200. When `async` is true
-     * the response body contains `{ job_id, status }` instead of the full
-     * extraction result.
-     *
      * @param {Pulse.ExtractRequest} request
      * @param {PulseClient.RequestOptions} requestOptions - Request-specific configuration.
      *
@@ -78,21 +74,32 @@ export class PulseClient {
             _request.append("fileUrl", request.fileUrl);
         }
 
+        if (request.pages != null) {
+            _request.append("pages", request.pages);
+        }
+
+        if (request.figureProcessing != null) {
+            _request.append("figureProcessing", toJson(request.figureProcessing));
+        }
+
+        if (request.extensions != null) {
+            _request.append("extensions", toJson(request.extensions));
+        }
+
+        if (request.storage != null) {
+            _request.append("storage", toJson(request.storage));
+        }
+
+        if (request.async != null) {
+            _request.append("async", request.async.toString());
+        }
+
         if (request.structuredOutput != null) {
             _request.append("structuredOutput", toJson(request.structuredOutput));
         }
 
         if (request.schema != null) {
             _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
-        }
-
-        if (request.experimentalSchema != null) {
-            _request.append(
-                "experimentalSchema",
-                typeof request.experimentalSchema === "string"
-                    ? request.experimentalSchema
-                    : toJson(request.experimentalSchema),
-            );
         }
 
         if (request.schemaPrompt != null) {
@@ -111,10 +118,6 @@ export class PulseClient {
             _request.append("chunkSize", request.chunkSize.toString());
         }
 
-        if (request.pages != null) {
-            _request.append("pages", request.pages);
-        }
-
         if (request.extractFigure != null) {
             _request.append("extractFigure", request.extractFigure.toString());
         }
@@ -131,20 +134,8 @@ export class PulseClient {
             _request.append("returnHtml", request.returnHtml.toString());
         }
 
-        if (request.effort != null) {
-            _request.append("effort", request.effort.toString());
-        }
-
         if (request.thinking != null) {
             _request.append("thinking", request.thinking.toString());
-        }
-
-        if (request.storage != null) {
-            _request.append("storage", toJson(request.storage));
-        }
-
-        if (request.async != null) {
-            _request.append("async", request.async.toString());
         }
 
         const _maybeEncodedRequest = await _request.getRequest();
@@ -236,21 +227,32 @@ export class PulseClient {
             _request.append("fileUrl", request.fileUrl);
         }
 
+        if (request.pages != null) {
+            _request.append("pages", request.pages);
+        }
+
+        if (request.figureProcessing != null) {
+            _request.append("figureProcessing", toJson(request.figureProcessing));
+        }
+
+        if (request.extensions != null) {
+            _request.append("extensions", toJson(request.extensions));
+        }
+
+        if (request.storage != null) {
+            _request.append("storage", toJson(request.storage));
+        }
+
+        if (request.async != null) {
+            _request.append("async", request.async.toString());
+        }
+
         if (request.structuredOutput != null) {
             _request.append("structuredOutput", toJson(request.structuredOutput));
         }
 
         if (request.schema != null) {
             _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
-        }
-
-        if (request.experimentalSchema != null) {
-            _request.append(
-                "experimentalSchema",
-                typeof request.experimentalSchema === "string"
-                    ? request.experimentalSchema
-                    : toJson(request.experimentalSchema),
-            );
         }
 
         if (request.schemaPrompt != null) {
@@ -269,10 +271,6 @@ export class PulseClient {
             _request.append("chunkSize", request.chunkSize.toString());
         }
 
-        if (request.pages != null) {
-            _request.append("pages", request.pages);
-        }
-
         if (request.extractFigure != null) {
             _request.append("extractFigure", request.extractFigure.toString());
         }
@@ -289,20 +287,8 @@ export class PulseClient {
             _request.append("returnHtml", request.returnHtml.toString());
         }
 
-        if (request.effort != null) {
-            _request.append("effort", request.effort.toString());
-        }
-
         if (request.thinking != null) {
             _request.append("thinking", request.thinking.toString());
-        }
-
-        if (request.storage != null) {
-            _request.append("storage", toJson(request.storage));
-        }
-
-        if (request.async != null) {
-            _request.append("async", request.async.toString());
         }
 
         const _maybeEncodedRequest = await _request.getRequest();
