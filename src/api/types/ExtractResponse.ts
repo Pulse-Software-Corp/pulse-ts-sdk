@@ -26,8 +26,6 @@ export interface ExtractResponse {
     html?: string;
     /** **Deprecated** — Use `extensions.chunking` instead. Document content split into chunks. Present when the legacy `chunking` input was used. */
     chunks?: ExtractResponse.Chunks;
-    /** **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used. */
-    "plan-info"?: ExtractResponse.PlanInfo;
     /** **Deprecated** — Only present when the deprecated `structuredOutput` input parameter was used. Use the `/schema` endpoint after extraction instead. */
     structured_output?: Pulse.StructuredOutputResult;
     /** **Deprecated** — Echo of the schema that was applied. Only present when the deprecated `structuredOutput` input parameter was used. */
@@ -119,11 +117,14 @@ export namespace ExtractResponse {
     }
 
     /**
-     * **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
+     * Billing tier and usage information.
      */
     export interface PlanInfo {
+        /** Current plan tier name. */
         tier?: string;
+        /** Cumulative pages used after this extraction. */
         pages_used?: number;
+        /** Human-readable plan note. */
         note?: string;
     }
 
@@ -135,14 +136,5 @@ export namespace ExtractResponse {
         header?: string[];
         page?: string[];
         recursive?: string[];
-    }
-
-    /**
-     * **Deprecated** — Use `plan_info` (underscore) instead. Present when only legacy input parameters are used.
-     */
-    export interface PlanInfo {
-        tier?: string;
-        pages_used?: number;
-        note?: string;
     }
 }
