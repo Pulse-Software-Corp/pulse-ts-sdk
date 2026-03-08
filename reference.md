@@ -281,6 +281,78 @@ await client.schema();
 </dl>
 </details>
 
+<details><summary><code>client.<a href="/src/Client.ts">tables</a>({ ...params }) -> Pulse.TablesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Extract tables from a previously completed extraction. Processes the
+extraction's document content and returns structured table data.
+
+Requires the `tables_endpoint` feature flag to be enabled for your
+organization.
+
+Set `async: true` to return immediately with a `tables_id` for
+polling via `GET /job/{tables_id}`.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.tables({
+    extraction_id: "extraction_id"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.TablesInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `PulseClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Jobs
 <details><summary><code>client.jobs.<a href="/src/api/resources/jobs/client/Client.ts">getJob</a>({ ...params }) -> Pulse.JobStatusResponse</code></summary>
 <dl>

@@ -264,4 +264,155 @@ describe("PulseClient", () => {
             return await client.schema();
         }).rejects.toThrow(Pulse.InternalServerError);
     });
+
+    test("tables (1)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { tables_id: "tables_id", tables_output: { tables: [{}] } };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(200)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        const response = await client.tables({
+            extraction_id: "extraction_id",
+        });
+        expect(response).toEqual({
+            tables_id: "tables_id",
+            tables_output: {
+                tables: [{}],
+            },
+        });
+    });
+
+    test("tables (2)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(400)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.BadRequestError);
+    });
+
+    test("tables (3)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(401)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.UnauthorizedError);
+    });
+
+    test("tables (4)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(403)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.ForbiddenError);
+    });
+
+    test("tables (5)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(404)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.NotFoundError);
+    });
+
+    test("tables (6)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(429)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.TooManyRequestsError);
+    });
+
+    test("tables (7)", async () => {
+        const server = mockServerPool.createServer();
+        const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
+        const rawRequestBody = { extraction_id: "extraction_id" };
+        const rawResponseBody = { key: "value" };
+        server
+            .mockEndpoint()
+            .post("/tables")
+            .jsonBody(rawRequestBody)
+            .respondWith()
+            .statusCode(500)
+            .jsonBody(rawResponseBody)
+            .build();
+
+        await expect(async () => {
+            return await client.tables({
+                extraction_id: "extraction_id",
+            });
+        }).rejects.toThrow(Pulse.InternalServerError);
+    });
 });

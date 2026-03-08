@@ -16,5 +16,7 @@ export * from "./SplitResponse.js";
 export * from "./SplitSchemaResponse.js";
 export * from "./StructuredOutputConfig.js";
 export * from "./StructuredOutputResult.js";
+export * from "./TablesConfig.js";
+export * from "./TablesResponse.js";
 export * from "./TopicDefinition.js";
 export * from "./TopicSchemaConfig.js";
