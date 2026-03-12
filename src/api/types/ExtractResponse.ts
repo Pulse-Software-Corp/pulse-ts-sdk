@@ -51,8 +51,8 @@ export namespace ExtractResponse {
         chunking?: Extensions.Chunking;
         /** Merge tables result/metadata. Present when `extensions.mergeTables` was enabled. */
         mergeTables?: Record<string, unknown>;
-        /** Footnote linking result/metadata. Present when `extensions.footnoteReferences` was enabled. */
-        footnoteReferences?: Record<string, unknown>;
+        /** List of detected footnotes with their in-text references. Present when `extensions.footnoteReferences` was enabled. Each item links a footnote paragraph to the body-text paragraphs that reference it, using bounding-box text IDs. */
+        footnoteReferences?: Extensions.FootnoteReferences.Item[];
         /** Alternate output formats. Each key corresponds to an enabled alt output. */
         altOutputs?: Extensions.AltOutputs;
     }
@@ -70,6 +70,19 @@ export namespace ExtractResponse {
             page?: string[];
             /** Recursively-split chunks respecting size limits. */
             recursive?: string[];
+        }
+
+        export type FootnoteReferences = FootnoteReferences.Item[];
+
+        export namespace FootnoteReferences {
+            export interface Item {
+                /** The footnote marker symbol (e.g. "*", "†", "1", "#"). */
+                symbol?: string;
+                /** The bounding-box text ID (e.g. "txt-15") of the footnote explanation paragraph. */
+                footnoteTextId?: string;
+                /** Bounding-box text IDs of body-text paragraphs that contain a reference to this footnote marker. */
+                referenceTextIds?: string[];
+            }
         }
 
         /**
