@@ -231,9 +231,19 @@ inferred from the input:
 **Single mode** — Provide `extraction_id` + `schema_config` (or
 `schema_config_id`) to apply one schema to the entire document.
 
+**Multi-extraction mode** — Provide a batch extract ID as `extraction_id`
+(auto-detected) or an explicit `extraction_ids` list. The content from all
+extractions is combined and the schema is applied to the composite. Citations
+use `extraction_id-bb_id` format to disambiguate across source documents.
+
 **Split mode** — Provide `split_id` + `split_schema_config` to apply
 different schemas to different page groups from a prior `/split` call.
 Each topic can have its own schema, prompt, and effort setting.
+
+**Excel template mode** — Provide `excel_template` (base64 .xlsx) in
+`schema_config` instead of `input_schema`. The schema is auto-generated
+from the template's column headers, and a filled copy is returned as
+`excel_output_url`.
 
 Creates a versioned schema record that can be retrieved later.
 Set `async: true` to return immediately with a job_id for polling.
@@ -272,6 +282,74 @@ await client.schema();
 <dd>
 
 **request:** `Pulse.SchemaInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `PulseClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.<a href="/src/Client.ts">downloadSchemaExcel</a>({ ...params }) -> core.BinaryResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Download the filled Excel template produced by a schema extraction that
+used `excel_template` in its `schema_config`. Requires the same API key
+authentication as other endpoints. The caller must belong to the org
+that owns the underlying extraction.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.downloadSchemaExcel({
+    schemaId: "schemaId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.DownloadSchemaExcelRequest` 
     
 </dd>
 </dl>

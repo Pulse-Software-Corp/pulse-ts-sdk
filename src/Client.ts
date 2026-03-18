@@ -458,9 +458,19 @@ export class PulseClient {
      * **Single mode** — Provide `extraction_id` + `schema_config` (or
      * `schema_config_id`) to apply one schema to the entire document.
      *
+     * **Multi-extraction mode** — Provide a batch extract ID as `extraction_id`
+     * (auto-detected) or an explicit `extraction_ids` list. The content from all
+     * extractions is combined and the schema is applied to the composite. Citations
+     * use `extraction_id-bb_id` format to disambiguate across source documents.
+     *
      * **Split mode** — Provide `split_id` + `split_schema_config` to apply
      * different schemas to different page groups from a prior `/split` call.
      * Each topic can have its own schema, prompt, and effort setting.
+     *
+     * **Excel template mode** — Provide `excel_template` (base64 .xlsx) in
+     * `schema_config` instead of `input_schema`. The schema is auto-generated
+     * from the template's column headers, and a filled copy is returned as
+     * `excel_output_url`.
      *
      * Creates a versioned schema record that can be retrieved later.
      * Set `async: true` to return immediately with a job_id for polling.
@@ -543,6 +553,71 @@ export class PulseClient {
         }
 
         return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/schema");
+    }
+
+    /**
+     * Download the filled Excel template produced by a schema extraction that
+     * used `excel_template` in its `schema_config`. Requires the same API key
+     * authentication as other endpoints. The caller must belong to the org
+     * that owns the underlying extraction.
+     * @throws {@link Pulse.UnauthorizedError}
+     * @throws {@link Pulse.NotFoundError}
+     */
+    public downloadSchemaExcel(
+        request: Pulse.DownloadSchemaExcelRequest,
+        requestOptions?: PulseClient.RequestOptions,
+    ): core.HttpResponsePromise<core.BinaryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__downloadSchemaExcel(request, requestOptions));
+    }
+
+    private async __downloadSchemaExcel(
+        request: Pulse.DownloadSchemaExcelRequest,
+        requestOptions?: PulseClient.RequestOptions,
+    ): Promise<core.WithRawResponse<core.BinaryResponse>> {
+        const { schemaId } = request;
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher<core.BinaryResponse>({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PulseEnvironment.Default,
+                `schema/${core.url.encodePathParam(schemaId)}/excel`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            responseType: "binary-response",
+            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 401:
+                    throw new Pulse.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Pulse.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PulseError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/schema/{schemaId}/excel");
     }
 
     /**

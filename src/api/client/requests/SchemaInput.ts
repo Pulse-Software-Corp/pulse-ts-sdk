@@ -7,8 +7,10 @@ import type * as Pulse from "../../index.js";
  *     {}
  */
 export interface SchemaInput {
-    /** ID of saved extraction to apply the schema to. Use for single-mode schema extraction. */
+    /** ID of a saved extraction OR a batch extract job. When a batch extract ID is provided, the system auto-detects it and combines all completed child extractions into a single schema application. */
     extraction_id?: string;
+    /** Explicit list of extraction IDs to combine. The markdown and bounding boxes from all extractions are merged and the schema is applied to the composite content. Citations use `extraction_id-bb_id` format to disambiguate across source documents. */
+    extraction_ids?: string[];
     /** ID of saved split (from a prior `/split` call). Use for split-mode schema extraction. */
     split_id?: string;
     /** Inline schema configuration for single mode. Required (with extraction_id) if schema_config_id is not provided. */

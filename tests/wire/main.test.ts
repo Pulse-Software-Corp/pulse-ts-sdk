@@ -145,6 +145,8 @@ describe("PulseClient", () => {
             schema_id: "schema_id",
             version: 1,
             schema_output: { values: { key: "value" }, citations: { key: "value" } },
+            extraction_ids: ["extraction_ids"],
+            excel_output_url: "excel_output_url",
         };
         server
             .mockEndpoint()
@@ -167,6 +169,8 @@ describe("PulseClient", () => {
                     key: "value",
                 },
             },
+            extraction_ids: ["extraction_ids"],
+            excel_output_url: "excel_output_url",
         });
     });
 
