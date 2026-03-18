@@ -54,7 +54,7 @@ following namespace:
 ```typescript
 import { Pulse } from "pulse-ts-sdk";
 
-const request: Pulse.GetJobRequest = {
+const request: Pulse.BatchExtractInput = {
     ...
 };
 ```

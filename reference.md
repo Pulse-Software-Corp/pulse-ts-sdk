@@ -17,6 +17,9 @@ extraction based on user-provided schemas and extraction options.
 
 Set `async: true` to return immediately with a job_id for polling via
 GET /job/{jobId}. Otherwise processes synchronously.
+
+To process many files at once, see [Batch Extract](api:POST/batch/extract)
+or the [Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -155,6 +158,9 @@ the `/schema` endpoint (split mode) for targeted schema extraction on
 specific page groups.
 
 Set `async: true` to return immediately with a job_id for polling.
+
+To split many extractions at once, see [Batch Split](api:POST/batch/split)
+or the [Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -231,6 +237,10 @@ Each topic can have its own schema, prompt, and effort setting.
 
 Creates a versioned schema record that can be retrieved later.
 Set `async: true` to return immediately with a job_id for polling.
+
+To apply schemas across many extractions or splits at once, see
+[Batch Schema](api:POST/batch/schema) or the
+[Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -301,6 +311,10 @@ organization.
 
 Set `async: true` to return immediately with a `tables_id` for
 polling via `GET /job/{tables_id}`.
+
+To extract tables from many extractions at once, see
+[Batch Tables](api:POST/batch/tables) or the
+[Batch Processing guide](/batch).
 </dd>
 </dl>
 </dd>
@@ -342,6 +356,324 @@ await client.tables({
 <dd>
 
 **requestOptions:** `PulseClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## Batch
+<details><summary><code>client.batch.<a href="/src/api/resources/batch/client/Client.ts">extract</a>({ ...params }) -> Pulse.BatchExtractResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Process multiple files in parallel. Enumerates files from an input
+source (S3 prefix, local directory, or URL list), calls
+[Extract](api:POST/extract) for each file, and saves results to an
+output destination.
+
+Always asynchronous — returns a batch job ID immediately.
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress
+including per-file completion status.
+
+See the [Extract](api:POST/extract) endpoint for details on
+`extract_options` and the [Batch Processing guide](/batch) for
+an overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.batch.extract({
+    input: {},
+    output: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.BatchExtractInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `BatchClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="/src/api/resources/batch/client/Client.ts">schema</a>({ ...params }) -> Pulse.BatchSchemaResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Apply schema extraction to multiple items in parallel.
+Mode is inferred from the input:
+
+**Single mode** — Provide `extraction_ids` or `batch_extract_id`
+with `schema_config` to apply one schema to each extraction.
+
+**Split mode** — Provide `split_ids` or `batch_split_id`
+with `split_schema_config` to apply per-topic schemas to each split.
+
+Each child call goes through the full [Schema](api:POST/schema) code
+path. Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time
+progress.
+
+See the [Schema](api:POST/schema) endpoint for details on
+`schema_config` and `split_schema_config`, and the
+[Batch Processing guide](/batch) for an overview of the batch
+pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.batch.schema({
+    output: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.BatchSchemaInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `BatchClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="/src/api/resources/batch/client/Client.ts">tables</a>({ ...params }) -> Pulse.BatchTablesResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Extract tables from multiple existing extractions in parallel.
+Each child call goes through the full [Tables](api:POST/tables) code
+path.
+
+Extractions are identified by either a `batch_extract_id` (from a
+prior [Batch Extract](api:POST/batch/extract) run) or an explicit
+list of `extraction_ids`.
+
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress.
+
+See the [Tables](api:POST/tables) endpoint for details on
+`tables_config` and the [Batch Processing guide](/batch) for an
+overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.batch.tables({
+    output: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.BatchTablesInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `BatchClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+<details><summary><code>client.batch.<a href="/src/api/resources/batch/client/Client.ts">split</a>({ ...params }) -> Pulse.BatchSplitResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Split multiple existing extractions by topics in parallel.
+Each child call goes through the full [Split](api:POST/split) code
+path.
+
+Extractions are identified by either a `batch_extract_id` (from a
+prior [Batch Extract](api:POST/batch/extract) run) or an explicit
+list of `extraction_ids`.
+
+Poll [GET /job/{jobId}](api:GET/job/{jobId}) for real-time progress.
+
+See the [Split](api:POST/split) endpoint for details on
+`split_config` and the [Batch Processing guide](/batch) for an
+overview of the batch pipeline.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.batch.split({
+    output: {},
+    split_config: {
+        split_input: [{
+                name: "name"
+            }]
+    }
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.BatchSplitInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `BatchClient.RequestOptions` 
     
 </dd>
 </dl>

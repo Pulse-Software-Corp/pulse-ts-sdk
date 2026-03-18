@@ -4,6 +4,8 @@
  * Common extraction options shared by synchronous and asynchronous endpoints.
  */
 export interface ExtractOptions {
+    /** Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used. */
+    model?: ExtractOptions.Model;
     /** Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`. */
     pages?: string;
     /** Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response. */
@@ -39,6 +41,12 @@ export interface ExtractOptions {
 }
 
 export namespace ExtractOptions {
+    /** Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used. */
+    export const Model = {
+        EnterprisePreview: "enterprise-preview",
+    } as const;
+    export type Model = (typeof Model)[keyof typeof Model];
+
     /**
      * Settings that control how figures in the document are processed. These affect the markdown output directly (e.g. figure descriptions, chart-to-table conversion, image embedding) and do not produce additional output fields in the response.
      */
