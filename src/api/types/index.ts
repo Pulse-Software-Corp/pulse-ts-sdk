@@ -1,6 +1,7 @@
 export * from "./AsyncSubmissionResponse.js";
 export * from "./BatchExtractionIds.js";
 export * from "./BatchExtractResponse.js";
+export * from "./BatchFileUpload.js";
 export * from "./BatchInputSource.js";
 export * from "./BatchOutputDestination.js";
 export * from "./BatchSchemaResponse.js";
