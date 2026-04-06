@@ -12,6 +12,8 @@ export interface AsyncSubmissionResponse {
     message?: string;
     /** **Deprecated** — Timestamp indicating when the job was accepted. Retained for backward compatibility. Use `GET /job/{jobId}` for timing details. */
     queuedAt?: string;
+    /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
+    credits_used?: number | null;
 }
 
 export namespace AsyncSubmissionResponse {

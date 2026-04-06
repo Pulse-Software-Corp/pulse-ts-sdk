@@ -12,6 +12,8 @@ export interface ExtractOptions {
     figureProcessing?: ExtractOptions.FigureProcessing;
     /** Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`. */
     extensions?: ExtractOptions.Extensions;
+    /** Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names. */
+    spreadsheet?: ExtractOptions.Spreadsheet;
     /** Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created. */
     storage?: ExtractOptions.Storage;
     /** If true, returns immediately with a job_id for polling via GET /job/{jobId}. Otherwise processes synchronously. */
@@ -61,8 +63,6 @@ export namespace ExtractOptions {
      * Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`.
      */
     export interface Extensions {
-        /** Merge tables that span multiple pages into a single table. */
-        mergeTables?: boolean;
         /** Link footnote markers to their corresponding footnote text. */
         footnoteReferences?: boolean;
         /** Chunking configuration. When provided, the document is split into chunks using the specified strategies. Results appear in `response.extensions.chunking`. */
@@ -107,6 +107,18 @@ export namespace ExtractOptions {
             /** Include an XML representation of the document. Results in `response.extensions.altOutputs.xml`. (Work in progress.) */
             returnXml?: boolean;
         }
+    }
+
+    /**
+     * Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Only applies to `.xlsx` and `.xls` files. Accepts both camelCase and snake_case field names.
+     */
+    export interface Spreadsheet {
+        /** Include rows that are hidden in the Excel workbook. */
+        includeHiddenRows?: boolean;
+        /** Include columns that are hidden in the Excel workbook. */
+        includeHiddenCols?: boolean;
+        /** Include sheets that are hidden in the Excel workbook. */
+        includeHiddenSheets?: boolean;
     }
 
     /**

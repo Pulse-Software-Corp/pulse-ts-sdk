@@ -13,7 +13,7 @@ export interface JobStatusResponse {
     created_at: string;
     /** Timestamp of the last status update, if available. */
     updated_at?: string;
-    /** Structured payload that contains output when the job is completed. */
+    /** Structured payload returned when the job completes.  For large extractions (70+ pages) this object contains `is_url: true` and a single-use `url` to download the full result via `GET /large_results/{jobId}`. */
     result?: Record<string, unknown>;
     /** Error message describing why the job failed, if applicable. */
     error?: string;

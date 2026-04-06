@@ -3,6 +3,8 @@
 import * as Pulse from "./api/index.js";
 import { BatchClient } from "./api/resources/batch/client/Client.js";
 import { JobsClient } from "./api/resources/jobs/client/Client.js";
+import { LargeResultsClient } from "./api/resources/largeResults/client/Client.js";
+import { PipelineClient } from "./api/resources/pipeline/client/Client.js";
 import { WebhooksClient } from "./api/resources/webhooks/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "./BaseClient.js";
@@ -22,7 +24,9 @@ export declare namespace PulseClient {
 export class PulseClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<PulseClient.Options>;
     protected _batch: BatchClient | undefined;
+    protected _pipeline: PipelineClient | undefined;
     protected _jobs: JobsClient | undefined;
+    protected _largeResults: LargeResultsClient | undefined;
     protected _webhooks: WebhooksClient | undefined;
 
     constructor(options: PulseClient.Options = {}) {
@@ -33,8 +37,16 @@ export class PulseClient {
         return (this._batch ??= new BatchClient(this._options));
     }
 
+    public get pipeline(): PipelineClient {
+        return (this._pipeline ??= new PipelineClient(this._options));
+    }
+
     public get jobs(): JobsClient {
         return (this._jobs ??= new JobsClient(this._options));
+    }
+
+    public get largeResults(): LargeResultsClient {
+        return (this._largeResults ??= new LargeResultsClient(this._options));
     }
 
     public get webhooks(): WebhooksClient {
@@ -97,6 +109,10 @@ export class PulseClient {
 
         if (request.extensions != null) {
             _request.append("extensions", toJson(request.extensions));
+        }
+
+        if (request.spreadsheet != null) {
+            _request.append("spreadsheet", toJson(request.spreadsheet));
         }
 
         if (request.storage != null) {
@@ -254,6 +270,10 @@ export class PulseClient {
 
         if (request.extensions != null) {
             _request.append("extensions", toJson(request.extensions));
+        }
+
+        if (request.spreadsheet != null) {
+            _request.append("spreadsheet", toJson(request.spreadsheet));
         }
 
         if (request.storage != null) {

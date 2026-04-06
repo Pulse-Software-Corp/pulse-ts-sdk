@@ -5,9 +5,4 @@ import type * as Pulse from "../index.js";
 /**
  * Result of document splitting with page assignments.
  */
-export interface SplitResponse {
-    /** Unique identifier for this split result. Use this ID with the `/schema` endpoint (split mode) to apply schemas to specific page groups. */
-    split_id: string;
-    /** Page assignments per topic. */
-    split_output: Pulse.SplitOutput;
-}
+export type SplitResponse = Pulse.SplitResultCore;

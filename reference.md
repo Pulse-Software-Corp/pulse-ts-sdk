@@ -763,6 +763,96 @@ await client.batch.split({
 </dl>
 </details>
 
+## Pipeline
+<details><summary><code>client.pipeline.<a href="/src/api/resources/pipeline/client/Client.ts">execute</a>({ ...params }) -> Pulse.PipelineExecuteResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Chain multiple processing steps (extract, schema, split) into a single
+request with inline configurations. No saved pipeline required.
+
+The `steps` object defines what to run and in what order. Outputs flow
+forward automatically — you never need to pass extraction IDs between
+steps.
+
+**Supported step combinations:**
+- `extract` — extract a single document
+- `extract` → `schema` — extract then apply structured schema
+- `extract` → `split` — extract then split into topics
+- `batch_extract` → `schema` — extract multiple files, combine into one schema output
+
+**Document input:**
+- Single file: provide `fileUrl` in JSON or `file` via multipart
+- Multiple files (batch_extract): provide `fileUrls` in JSON or multiple `file` fields via multipart
+
+Set `async: true` to return immediately with a `job_id` for polling via
+`GET /job/{jobId}`.
+
+Set `autoDelete: true` for zero-retention mode — all stored artifacts
+are deleted immediately after you receive the results. Requires
+`save_extractions` to be disabled for your organization.
+
+Requires the `enable_adhoc_pipeline` feature flag.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.pipeline.execute({
+    steps: {}
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.PipelineExecuteInput` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `PipelineClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## Jobs
 <details><summary><code>client.jobs.<a href="/src/api/resources/jobs/client/Client.ts">getJob</a>({ ...params }) -> Pulse.JobStatusResponse</code></summary>
 <dl>
@@ -885,6 +975,77 @@ await client.jobs.cancelJob({
 <dd>
 
 **requestOptions:** `JobsClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
+## LargeResults
+<details><summary><code>client.largeResults.<a href="/src/api/resources/largeResults/client/Client.ts">getLargeResult</a>({ ...params }) -> Pulse.ExtractResultCore</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Download the full result for a large extraction (70+ pages).
+
+When `/extract` or `GET /job/{jobId}` returns `is_url: true`, fetch
+the complete result from the URL provided.  The URL is single-use:
+after a successful download the resource is deleted and subsequent
+requests return 410 Gone.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.largeResults.getLargeResult({
+    jobId: "jobId"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.GetLargeResultLargeResultsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `LargeResultsClient.RequestOptions` 
     
 </dd>
 </dl>

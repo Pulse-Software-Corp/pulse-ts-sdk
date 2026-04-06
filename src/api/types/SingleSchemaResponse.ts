@@ -16,4 +16,6 @@ export interface SingleSchemaResponse {
     extraction_ids?: string[];
     /** API path to download the filled Excel template (e.g. `/schema/{schema_id}/excel`). Requires the same API key authentication. Only present when `excel_template` was provided in the request. */
     excel_output_url?: string;
+    /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
+    credits_used?: number | null;
 }

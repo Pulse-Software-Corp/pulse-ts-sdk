@@ -8,6 +8,8 @@ export interface TablesResponse {
     tables_id: string;
     /** The extracted tables data. */
     tables_output: TablesResponse.TablesOutput;
+    /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
+    credits_used?: number | null;
 }
 
 export namespace TablesResponse {

@@ -8,6 +8,8 @@ export interface TablesConfig {
     merge?: boolean;
     /** Output format for table content. Currently only `html` is supported. */
     table_format?: TablesConfig.TableFormat;
+    /** Convert figures and charts into tables using LLM processing. Resulting tables have `from_chart: true` in the response. */
+    charts_to_tables?: boolean;
 }
 
 export namespace TablesConfig {

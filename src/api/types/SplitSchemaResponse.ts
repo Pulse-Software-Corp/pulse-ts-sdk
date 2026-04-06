@@ -16,4 +16,6 @@ export interface SplitSchemaResponse {
     input_schemas?: Record<string, Record<string, unknown>>;
     /** Per-topic errors if any topics failed to process. Keys are topic names, values are error messages. */
     errors?: Record<string, string>;
+    /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
+    credits_used?: number | null;
 }
