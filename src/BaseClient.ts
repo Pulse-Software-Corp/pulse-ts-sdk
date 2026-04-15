@@ -55,6 +55,7 @@ export function normalizeClientOptions<T extends BaseClientOptions = BaseClientO
             "User-Agent": "pulse-ts-sdk/1.0.9",
             "X-Fern-Runtime": core.RUNTIME.type,
             "X-Fern-Runtime-Version": core.RUNTIME.version,
+            "X-Pulse-Source": "sdk-typescript",
         },
         options?.headers,
     );
