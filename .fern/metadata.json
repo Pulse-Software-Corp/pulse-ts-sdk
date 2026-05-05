@@ -3,7 +3,8 @@
     "generatorName": "fernapi/fern-typescript-node-sdk",
     "generatorVersion": "3.42.8",
     "generatorConfig": {
-        "namespaceExport": "Pulse"
+        "namespaceExport": "Pulse",
+        "defaultTimeoutInSeconds": "infinity"
     },
-    "sdkVersion": "1.0.9"
+    "sdkVersion": "1.0.10"
 }

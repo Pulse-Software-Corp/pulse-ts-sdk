@@ -26,8 +26,8 @@ export namespace TablesResponse {
 
         export namespace Tables {
             export interface Item {
-                /** The table content in the requested format (e.g. HTML). */
-                table_content?: string;
+                /** The table content. When `table_format` is `html` (default), this is an HTML string. When `json`, this is an object with `headers` (array of column names) and `rows` (array of objects keyed by header name). */
+                table_content?: unknown;
                 /** Bounding box table IDs indicating where this table was found (e.g. "tbl-1"). Merged tables list all source IDs. */
                 citations?: string[];
                 /** Whether this table was extracted from a chart or figure rather than a native table. */

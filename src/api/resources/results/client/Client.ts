@@ -9,55 +9,60 @@ import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCode
 import * as errors from "../../../../errors/index.js";
 import * as Pulse from "../../../index.js";
 
-export declare namespace WebhooksClient {
+export declare namespace ResultsClient {
     export type Options = BaseClientOptions;
 
     export interface RequestOptions extends BaseRequestOptions {}
 }
 
-export class WebhooksClient {
-    protected readonly _options: NormalizedClientOptionsWithAuth<WebhooksClient.Options>;
+export class ResultsClient {
+    protected readonly _options: NormalizedClientOptionsWithAuth<ResultsClient.Options>;
 
-    constructor(options: WebhooksClient.Options = {}) {
+    constructor(options: ResultsClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
     }
 
     /**
-     * Generates a temporary link to the Svix webhook portal where users can manage their webhook endpoints and view message logs.
+     * Download the PDF binary produced by a `/form/detect`,
+     * `/form/fill`, or `/form/clear` job. The `pdf_url` field on a
+     * `FormResult` points at this endpoint — you can hand it
+     * directly to a browser, embed it in an `<iframe>`, or fetch the
+     * bytes from a backend.
      *
-     * @param {WebhooksClient.RequestOptions} requestOptions - Request-specific configuration.
-     *
-     * @throws {@link Pulse.UnauthorizedError}
+     * Returns `404` for non-form jobs (no PDF was produced) and for
+     * form jobs whose PDF artifact is no longer available.
+     * @throws {@link Pulse.NotFoundError}
      * @throws {@link Pulse.InternalServerError}
-     *
-     * @example
-     *     await client.webhooks.createWebhookLink()
      */
-    public createWebhookLink(
-        requestOptions?: WebhooksClient.RequestOptions,
-    ): core.HttpResponsePromise<Pulse.CreateWebhookLinkResponse> {
-        return core.HttpResponsePromise.fromPromise(this.__createWebhookLink(requestOptions));
+    public getPdf(
+        request: Pulse.GetPdfResultsRequest,
+        requestOptions?: ResultsClient.RequestOptions,
+    ): core.HttpResponsePromise<core.BinaryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getPdf(request, requestOptions));
     }
 
-    private async __createWebhookLink(
-        requestOptions?: WebhooksClient.RequestOptions,
-    ): Promise<core.WithRawResponse<Pulse.CreateWebhookLinkResponse>> {
+    private async __getPdf(
+        request: Pulse.GetPdfResultsRequest,
+        requestOptions?: ResultsClient.RequestOptions,
+    ): Promise<core.WithRawResponse<core.BinaryResponse>> {
+        const { jobId } = request;
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
             requestOptions?.headers,
         );
-        const _response = await core.fetcher({
+        const _response = await core.fetcher<core.BinaryResponse>({
             url: core.url.join(
                 (await core.Supplier.get(this._options.baseUrl)) ??
                     (await core.Supplier.get(this._options.environment)) ??
                     environments.PulseEnvironment.Default,
-                "webhook",
+                `results/${core.url.encodePathParam(jobId)}/pdf`,
             ),
-            method: "POST",
+            method: "GET",
             headers: _headers,
             queryParameters: requestOptions?.queryParams,
+            responseType: "binary-response",
             timeoutMs:
                 requestOptions?.timeoutInSeconds != null
                     ? requestOptions.timeoutInSeconds * 1000
@@ -70,13 +75,13 @@ export class WebhooksClient {
             logging: this._options.logging,
         });
         if (_response.ok) {
-            return { data: _response.body as Pulse.CreateWebhookLinkResponse, rawResponse: _response.rawResponse };
+            return { data: _response.body, rawResponse: _response.rawResponse };
         }
 
         if (_response.error.reason === "status-code") {
             switch (_response.error.statusCode) {
-                case 401:
-                    throw new Pulse.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Pulse.NotFoundError(_response.error.body as unknown, _response.rawResponse);
                 case 500:
                     throw new Pulse.InternalServerError(_response.error.body as unknown, _response.rawResponse);
                 default:
@@ -88,6 +93,6 @@ export class WebhooksClient {
             }
         }
 
-        return handleNonStatusCodeError(_response.error, _response.rawResponse, "POST", "/webhook");
+        return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/results/{jobId}/pdf");
     }
 }

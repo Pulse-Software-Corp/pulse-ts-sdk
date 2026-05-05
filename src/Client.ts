@@ -2,9 +2,11 @@
 
 import * as Pulse from "./api/index.js";
 import { BatchClient } from "./api/resources/batch/client/Client.js";
+import { FormClient } from "./api/resources/form/client/Client.js";
 import { JobsClient } from "./api/resources/jobs/client/Client.js";
 import { LargeResultsClient } from "./api/resources/largeResults/client/Client.js";
 import { PipelineClient } from "./api/resources/pipeline/client/Client.js";
+import { ResultsClient } from "./api/resources/results/client/Client.js";
 import { WebhooksClient } from "./api/resources/webhooks/client/Client.js";
 import type { BaseClientOptions, BaseRequestOptions } from "./BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "./BaseClient.js";
@@ -23,14 +25,20 @@ export declare namespace PulseClient {
 
 export class PulseClient {
     protected readonly _options: NormalizedClientOptionsWithAuth<PulseClient.Options>;
+    protected _form: FormClient | undefined;
     protected _batch: BatchClient | undefined;
     protected _pipeline: PipelineClient | undefined;
     protected _jobs: JobsClient | undefined;
+    protected _results: ResultsClient | undefined;
     protected _largeResults: LargeResultsClient | undefined;
     protected _webhooks: WebhooksClient | undefined;
 
     constructor(options: PulseClient.Options = {}) {
         this._options = normalizeClientOptionsWithAuth(options);
+    }
+
+    public get form(): FormClient {
+        return (this._form ??= new FormClient(this._options));
     }
 
     public get batch(): BatchClient {
@@ -43,6 +51,10 @@ export class PulseClient {
 
     public get jobs(): JobsClient {
         return (this._jobs ??= new JobsClient(this._options));
+    }
+
+    public get results(): ResultsClient {
+        return (this._results ??= new ResultsClient(this._options));
     }
 
     public get largeResults(): LargeResultsClient {
@@ -188,7 +200,12 @@ export class PulseClient {
             requestType: "file",
             duplex: _maybeEncodedRequest.duplex,
             body: _maybeEncodedRequest.body,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,
@@ -349,7 +366,12 @@ export class PulseClient {
             requestType: "file",
             duplex: _maybeEncodedRequest.duplex,
             body: _maybeEncodedRequest.body,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,
@@ -437,7 +459,12 @@ export class PulseClient {
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
             body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,
@@ -541,7 +568,12 @@ export class PulseClient {
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
             body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,
@@ -612,7 +644,12 @@ export class PulseClient {
             headers: _headers,
             queryParameters: requestOptions?.queryParams,
             responseType: "binary-response",
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,
@@ -699,7 +736,12 @@ export class PulseClient {
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
             body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,

@@ -1,10 +1,14 @@
 export * from "./batch/client/requests/index.js";
 export * as batch from "./batch/index.js";
+export * from "./form/client/requests/index.js";
+export * as form from "./form/index.js";
 export * from "./jobs/client/requests/index.js";
 export * as jobs from "./jobs/index.js";
 export * from "./largeResults/client/requests/index.js";
 export * as largeResults from "./largeResults/index.js";
 export * from "./pipeline/client/requests/index.js";
 export * as pipeline from "./pipeline/index.js";
+export * from "./results/client/requests/index.js";
+export * as results from "./results/index.js";
 export * as webhooks from "./webhooks/index.js";
 export * from "./webhooks/types/index.js";

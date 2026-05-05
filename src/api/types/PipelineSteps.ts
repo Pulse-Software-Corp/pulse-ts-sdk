@@ -14,4 +14,6 @@ export interface PipelineSteps {
     schema?: Pulse.SchemaConfig;
     /** Topic splitting step. Same config as `split_config` in `POST /split`. Requires `extract` or `batch_extract` before it. */
     split?: Pulse.SplitConfig;
+    /** Table extraction step. Same config as `tables_config` in `POST /tables`. Requires `extract` before it. This is a terminal step — no further steps can follow. */
+    tables?: Pulse.TablesConfig;
 }

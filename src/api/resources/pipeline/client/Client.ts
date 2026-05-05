@@ -23,8 +23,8 @@ export class PipelineClient {
     }
 
     /**
-     * Chain multiple processing steps (extract, schema, split) into a single
-     * request with inline configurations. No saved pipeline required.
+     * Chain multiple processing steps (extract, schema, split, tables) into a
+     * single request with inline configurations. No saved pipeline required.
      *
      * The `steps` object defines what to run and in what order. Outputs flow
      * forward automatically — you never need to pass extraction IDs between
@@ -34,6 +34,8 @@ export class PipelineClient {
      * - `extract` — extract a single document
      * - `extract` → `schema` — extract then apply structured schema
      * - `extract` → `split` — extract then split into topics
+     * - `extract` → `split` → `schema` — extract, split by topic, apply per-topic schemas
+     * - `extract` → `tables` — extract then extract structured tables
      * - `batch_extract` → `schema` — extract multiple files, combine into one schema output
      *
      * **Document input:**
@@ -92,7 +94,12 @@ export class PipelineClient {
             queryParameters: requestOptions?.queryParams,
             requestType: "json",
             body: request,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,

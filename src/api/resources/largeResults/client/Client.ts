@@ -23,12 +23,18 @@ export class LargeResultsClient {
     }
 
     /**
-     * Download the full result for a large extraction (70+ pages).
-     *
-     * When `/extract` or `GET /job/{jobId}` returns `is_url: true`, fetch
-     * the complete result from the URL provided.  The URL is single-use:
-     * after a successful download the resource is deleted and subsequent
+     * Download the full result for a large extraction. When `/extract`
+     * or `GET /job/{jobId}` returns `is_url: true`, fetch the complete
+     * result from the URL provided.  The URL is single-use: after a
+     * successful download the resource is deleted and subsequent
      * requests return 410 Gone.
+     *
+     * For form jobs (`/form/detect`, `/form/fill`, `/form/clear`)
+     * you don't need this endpoint at all — `GET /job/{jobId}`
+     * already returns the full `FormResult` inline under `result`,
+     * and the `pdf_url` field points at
+     * [GET /results/{jobId}/pdf](api:GET/results/{jobId}/pdf) for the
+     * binary.
      *
      * @param {Pulse.GetLargeResultLargeResultsRequest} request
      * @param {LargeResultsClient.RequestOptions} requestOptions - Request-specific configuration.
@@ -70,7 +76,12 @@ export class LargeResultsClient {
             method: "GET",
             headers: _headers,
             queryParameters: requestOptions?.queryParams,
-            timeoutMs: (requestOptions?.timeoutInSeconds ?? this._options?.timeoutInSeconds ?? 60) * 1000,
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
             maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
             abortSignal: requestOptions?.abortSignal,
             fetchFn: this._options?.fetch,

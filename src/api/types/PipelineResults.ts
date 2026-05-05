@@ -14,4 +14,6 @@ export interface PipelineResults {
     schema?: Pulse.PipelineSchemaResult;
     /** Split step result. */
     split?: Pulse.PipelineSplitResult;
+    /** Tables step result. */
+    tables?: Pulse.PipelineTablesResult;
 }

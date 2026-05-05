@@ -4,7 +4,7 @@
  * Common extraction options shared by synchronous and asynchronous endpoints.
  */
 export interface ExtractOptions {
-    /** Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used. */
+    /** Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used. */
     model?: ExtractOptions.Model;
     /** Page range filter supporting segments such as `1-2` or mixed ranges like `1-2,5`. */
     pages?: string;
@@ -43,9 +43,10 @@ export interface ExtractOptions {
 }
 
 export namespace ExtractOptions {
-    /** Extraction model to use. When set to `enterprise-preview`, routes the request through Pulse's self-hosted VPC extraction model instead of the default cloud-based service. If omitted or set to any other value, the default model is used. */
+    /** Extraction model to use. When set to `pulse-ultra-2`, routes the request through Pulse Ultra 2 (self-hosted VPC model) instead of the default cloud-based service. If omitted or set to `default`, the default model is used. */
     export const Model = {
-        EnterprisePreview: "enterprise-preview",
+        Default: "default",
+        PulseUltra2: "pulse-ultra-2",
     } as const;
     export type Model = (typeof Model)[keyof typeof Model];
 

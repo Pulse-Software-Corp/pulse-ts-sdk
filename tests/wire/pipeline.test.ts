@@ -27,6 +27,7 @@ describe("PipelineClient", () => {
                 batch_extract: { extraction_ids: ["extraction_ids"], total_files: 1, latency: 1.1 },
                 schema: { schema_id: "schema_id", latency: 1.1 },
                 split: { split_id: "split_id", credits_used: 1.1, split_input: [{ name: "name" }], latency: 1.1 },
+                tables: { tables_id: "tables_id", latency: 1.1 },
             },
             auto_delete: true,
         };
@@ -76,6 +77,10 @@ describe("PipelineClient", () => {
                             name: "name",
                         },
                     ],
+                    latency: 1.1,
+                },
+                tables: {
+                    tables_id: "tables_id",
                     latency: 1.1,
                 },
             },

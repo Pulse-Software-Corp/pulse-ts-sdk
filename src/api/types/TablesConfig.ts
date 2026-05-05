@@ -6,16 +6,17 @@
 export interface TablesConfig {
     /** When true, adjacent tables that appear to be continuations of each other are merged into a single table. */
     merge?: boolean;
-    /** Output format for table content. Currently only `html` is supported. */
+    /** Output format for table content. `html` returns an HTML `<table>` string. `json` returns a structured object with `headers` (array of column names) and `rows` (array of objects keyed by header name). */
     table_format?: TablesConfig.TableFormat;
     /** Convert figures and charts into tables using LLM processing. Resulting tables have `from_chart: true` in the response. */
     charts_to_tables?: boolean;
 }
 
 export namespace TablesConfig {
-    /** Output format for table content. Currently only `html` is supported. */
+    /** Output format for table content. `html` returns an HTML `<table>` string. `json` returns a structured object with `headers` (array of column names) and `rows` (array of objects keyed by header name). */
     export const TableFormat = {
         Html: "html",
+        Json: "json",
     } as const;
     export type TableFormat = (typeof TableFormat)[keyof typeof TableFormat];
 }
