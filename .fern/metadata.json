@@ -6,6 +6,6 @@
         "namespaceExport": "Pulse",
         "defaultTimeoutInSeconds": "infinity"
     },
-    "originGitCommit": "e3a2f9d067c9901599b12746592ef0a341af714d",
-    "sdkVersion": "1.0.14"
+    "originGitCommit": "b4becabded9ecd8ad7079cdeeb8d2f842034a88c",
+    "sdkVersion": "1.0.15"
 }
