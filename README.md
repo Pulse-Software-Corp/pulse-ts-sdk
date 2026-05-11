@@ -55,7 +55,7 @@ following namespace:
 ```typescript
 import { Pulse } from "pulse-ts-sdk";
 
-const request: Pulse.FormDetectJsonInput = {
+const request: Pulse.FormDetectMultipartInput = {
     ...
 };
 ```
@@ -89,7 +89,7 @@ import { createReadStream } from "fs";
 import { PulseClient } from "pulse-ts-sdk";
 
 const client = new PulseClient({ apiKey: "YOUR_API_KEY" });
-await client.extract({});
+await client.form.detect({});
 ```
 The client accepts a variety of types for file upload parameters:
 * Stream types: `fs.ReadStream`, `stream.Readable`, and `ReadableStream`

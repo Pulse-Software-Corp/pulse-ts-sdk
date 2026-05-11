@@ -111,6 +111,10 @@ export class PulseClient {
             _request.append("model", request.model);
         }
 
+        if (request.extractionConfigId != null) {
+            _request.append("extractionConfigId", request.extractionConfigId);
+        }
+
         if (request.pages != null) {
             _request.append("pages", request.pages);
         }
@@ -140,7 +144,7 @@ export class PulseClient {
         }
 
         if (request.schema != null) {
-            _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
+            _request.append("schema", toJson(request.schema));
         }
 
         if (request.schemaPrompt != null) {
@@ -277,6 +281,10 @@ export class PulseClient {
             _request.append("model", request.model);
         }
 
+        if (request.extractionConfigId != null) {
+            _request.append("extractionConfigId", request.extractionConfigId);
+        }
+
         if (request.pages != null) {
             _request.append("pages", request.pages);
         }
@@ -306,7 +314,7 @@ export class PulseClient {
         }
 
         if (request.schema != null) {
-            _request.append("schema", typeof request.schema === "string" ? request.schema : toJson(request.schema));
+            _request.append("schema", toJson(request.schema));
         }
 
         if (request.schemaPrompt != null) {

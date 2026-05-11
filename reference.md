@@ -470,11 +470,17 @@ single input source — Pulse will skip detection on the fast
 path and reuse the cached cells.
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — re-detect cells on a previously stored
-  PDF. Useful when callers want to refresh layout after editing
-  or when chaining detect calls.
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF.
+- `form_id` — re-detect cells on a previously stored PDF.
+  Useful when callers want to refresh layout after editing or
+  when chaining detect calls.
+- `file_url` — public or pre-signed URL Pulse will download.
+- `file` — direct binary upload of the PDF.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
 the operation to a subset of pages.
@@ -499,7 +505,7 @@ feature flag to be enabled for your organization.
 <dd>
 
 ```typescript
-await client.form.detect();
+await client.form.detect({});
 
 ```
 </dd>
@@ -515,7 +521,7 @@ await client.form.detect();
 <dl>
 <dd>
 
-**request:** `Pulse.FormDetectJsonInput` 
+**request:** `Pulse.FormDetectMultipartInput` 
     
 </dd>
 </dl>
@@ -553,13 +559,20 @@ language `instructions` prompt. Works on both AcroForm PDFs
 are rendered as an overlay using detected cells from OCR).
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — reuse a previously processed form from a
-  prior `/form/detect`, `/form/fill`, or `/form/clear` call.
-  Skips re-detection (fast path); the cached `form_fields` are
+- `form_id` — reuse a previously processed form from a prior
+  `/form/detect`, `/form/fill`, or `/form/clear` call. Skips
+  re-detection (fast path); the cached `form_fields` are
   reused.
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF. Pulse runs cell detection internally before
-  filling.
+- `file_url` — public or pre-signed URL of a PDF Pulse will
+  download.
+- `file` — direct binary upload of the PDF. Pulse runs cell
+  detection internally before filling.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 Optional `form_fields` lets callers supply or edit the detected
 cells before filling. Optional `page_range` (alias `pages`,
@@ -604,7 +617,7 @@ await client.form.fill({
 <dl>
 <dd>
 
-**request:** `Pulse.FormFillJsonInput` 
+**request:** `Pulse.FormFillMultipartInput` 
     
 </dd>
 </dl>
@@ -643,11 +656,18 @@ titles, section headers, and other static template content are
 preserved.
 
 **Input modes** — provide exactly one of:
-- `form_id` (JSON) — reuse a previously processed form from a
-  prior `/form/detect`, `/form/fill`, or `/form/clear` call
-  (fast path; cached layout reused).
-- `file` (multipart) or `file_url` (JSON or multipart) — start
-  from a raw PDF.
+- `form_id` — reuse a previously processed form from a prior
+  `/form/detect`, `/form/fill`, or `/form/clear` call (fast
+  path; cached layout reused).
+- `file_url` — public or pre-signed URL of a PDF Pulse will
+  download.
+- `file` — direct binary upload of the PDF.
+
+All three input modes ride on the same `multipart/form-data`
+request body. (Callers sending `Content-Type: application/json`
+with `form_id` / `file_url` are still accepted server-side for
+backward compatibility, but the SDKs only model the multipart
+form.)
 
 `instructions` is optional. When omitted, Pulse clears every
 user-filled field deterministically (no LLM call) on AcroForm
@@ -680,7 +700,7 @@ feature flag to be enabled for your organization.
 <dd>
 
 ```typescript
-await client.form.clear();
+await client.form.clear({});
 
 ```
 </dd>
@@ -696,7 +716,7 @@ await client.form.clear();
 <dl>
 <dd>
 
-**request:** `Pulse.FormClearJsonInput` 
+**request:** `Pulse.FormClearMultipartInput` 
     
 </dd>
 </dl>

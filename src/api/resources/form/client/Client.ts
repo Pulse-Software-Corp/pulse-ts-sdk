@@ -2,7 +2,7 @@
 
 import type { BaseClientOptions, BaseRequestOptions } from "../../../../BaseClient.js";
 import { type NormalizedClientOptionsWithAuth, normalizeClientOptionsWithAuth } from "../../../../BaseClient.js";
-import { mergeHeaders } from "../../../../core/headers.js";
+import { mergeHeaders, mergeOnlyDefinedHeaders } from "../../../../core/headers.js";
 import * as core from "../../../../core/index.js";
 import * as environments from "../../../../environments.js";
 import { handleNonStatusCodeError } from "../../../../errors/handleNonStatusCodeError.js";
@@ -35,11 +35,17 @@ export class FormClient {
      * path and reuse the cached cells.
      *
      * **Input modes** — provide exactly one of:
-     * - `form_id` (JSON) — re-detect cells on a previously stored
-     *   PDF. Useful when callers want to refresh layout after editing
-     *   or when chaining detect calls.
-     * - `file` (multipart) or `file_url` (JSON or multipart) — start
-     *   from a raw PDF.
+     * - `form_id` — re-detect cells on a previously stored PDF.
+     *   Useful when callers want to refresh layout after editing or
+     *   when chaining detect calls.
+     * - `file_url` — public or pre-signed URL Pulse will download.
+     * - `file` — direct binary upload of the PDF.
+     *
+     * All three input modes ride on the same `multipart/form-data`
+     * request body. (Callers sending `Content-Type: application/json`
+     * with `form_id` / `file_url` are still accepted server-side for
+     * backward compatibility, but the SDKs only model the multipart
+     * form.)
      *
      * Optional `page_range` (alias `pages`, e.g. `"1-3,5"`) restricts
      * the operation to a subset of pages.
@@ -51,7 +57,7 @@ export class FormClient {
      * Billed at **1 credit per page**. Requires the `form_filler`
      * feature flag to be enabled for your organization.
      *
-     * @param {Pulse.FormDetectJsonInput} request
+     * @param {Pulse.FormDetectMultipartInput} request
      * @param {FormClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Pulse.BadRequestError}
@@ -62,23 +68,47 @@ export class FormClient {
      * @throws {@link Pulse.InternalServerError}
      *
      * @example
-     *     await client.form.detect()
+     *     import { createReadStream } from "fs";
+     *     await client.form.detect({})
      */
     public detect(
-        request: Pulse.FormDetectJsonInput = {},
+        request: Pulse.FormDetectMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): core.HttpResponsePromise<Pulse.FormResult> {
         return core.HttpResponsePromise.fromPromise(this.__detect(request, requestOptions));
     }
 
     private async __detect(
-        request: Pulse.FormDetectJsonInput = {},
+        request: Pulse.FormDetectMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): Promise<core.WithRawResponse<Pulse.FormResult>> {
+        const _request = await core.newFormData();
+        if (request.file != null) {
+            await _request.appendFile("file", request.file);
+        }
+
+        if (request.file_url != null) {
+            _request.append("file_url", request.file_url);
+        }
+
+        if (request.form_id != null) {
+            _request.append("form_id", request.form_id);
+        }
+
+        if (request.page_range != null) {
+            _request.append("page_range", request.page_range);
+        }
+
+        if (request.async != null) {
+            _request.append("async", request.async);
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -90,10 +120,10 @@ export class FormClient {
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
             timeoutMs:
                 requestOptions?.timeoutInSeconds != null
                     ? requestOptions.timeoutInSeconds * 1000
@@ -142,13 +172,20 @@ export class FormClient {
      * are rendered as an overlay using detected cells from OCR).
      *
      * **Input modes** — provide exactly one of:
-     * - `form_id` (JSON) — reuse a previously processed form from a
-     *   prior `/form/detect`, `/form/fill`, or `/form/clear` call.
-     *   Skips re-detection (fast path); the cached `form_fields` are
+     * - `form_id` — reuse a previously processed form from a prior
+     *   `/form/detect`, `/form/fill`, or `/form/clear` call. Skips
+     *   re-detection (fast path); the cached `form_fields` are
      *   reused.
-     * - `file` (multipart) or `file_url` (JSON or multipart) — start
-     *   from a raw PDF. Pulse runs cell detection internally before
-     *   filling.
+     * - `file_url` — public or pre-signed URL of a PDF Pulse will
+     *   download.
+     * - `file` — direct binary upload of the PDF. Pulse runs cell
+     *   detection internally before filling.
+     *
+     * All three input modes ride on the same `multipart/form-data`
+     * request body. (Callers sending `Content-Type: application/json`
+     * with `form_id` / `file_url` are still accepted server-side for
+     * backward compatibility, but the SDKs only model the multipart
+     * form.)
      *
      * Optional `form_fields` lets callers supply or edit the detected
      * cells before filling. Optional `page_range` (alias `pages`,
@@ -162,7 +199,7 @@ export class FormClient {
      * Billed at **3 credits per page**. Requires the `form_filler`
      * feature flag to be enabled for your organization.
      *
-     * @param {Pulse.FormFillJsonInput} request
+     * @param {Pulse.FormFillMultipartInput} request
      * @param {FormClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Pulse.BadRequestError}
@@ -173,25 +210,54 @@ export class FormClient {
      * @throws {@link Pulse.InternalServerError}
      *
      * @example
+     *     import { createReadStream } from "fs";
      *     await client.form.fill({
      *         instructions: "instructions"
      *     })
      */
     public fill(
-        request: Pulse.FormFillJsonInput,
+        request: Pulse.FormFillMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): core.HttpResponsePromise<Pulse.FormResult> {
         return core.HttpResponsePromise.fromPromise(this.__fill(request, requestOptions));
     }
 
     private async __fill(
-        request: Pulse.FormFillJsonInput,
+        request: Pulse.FormFillMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): Promise<core.WithRawResponse<Pulse.FormResult>> {
+        const _request = await core.newFormData();
+        if (request.file != null) {
+            await _request.appendFile("file", request.file);
+        }
+
+        if (request.file_url != null) {
+            _request.append("file_url", request.file_url);
+        }
+
+        if (request.form_id != null) {
+            _request.append("form_id", request.form_id);
+        }
+
+        _request.append("instructions", request.instructions);
+        if (request.form_fields != null) {
+            _request.append("form_fields", request.form_fields);
+        }
+
+        if (request.page_range != null) {
+            _request.append("page_range", request.page_range);
+        }
+
+        if (request.async != null) {
+            _request.append("async", request.async);
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -203,10 +269,10 @@ export class FormClient {
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
             timeoutMs:
                 requestOptions?.timeoutInSeconds != null
                     ? requestOptions.timeoutInSeconds * 1000
@@ -256,11 +322,18 @@ export class FormClient {
      * preserved.
      *
      * **Input modes** — provide exactly one of:
-     * - `form_id` (JSON) — reuse a previously processed form from a
-     *   prior `/form/detect`, `/form/fill`, or `/form/clear` call
-     *   (fast path; cached layout reused).
-     * - `file` (multipart) or `file_url` (JSON or multipart) — start
-     *   from a raw PDF.
+     * - `form_id` — reuse a previously processed form from a prior
+     *   `/form/detect`, `/form/fill`, or `/form/clear` call (fast
+     *   path; cached layout reused).
+     * - `file_url` — public or pre-signed URL of a PDF Pulse will
+     *   download.
+     * - `file` — direct binary upload of the PDF.
+     *
+     * All three input modes ride on the same `multipart/form-data`
+     * request body. (Callers sending `Content-Type: application/json`
+     * with `form_id` / `file_url` are still accepted server-side for
+     * backward compatibility, but the SDKs only model the multipart
+     * form.)
      *
      * `instructions` is optional. When omitted, Pulse clears every
      * user-filled field deterministically (no LLM call) on AcroForm
@@ -280,7 +353,7 @@ export class FormClient {
      * Billed at **3 credits per page**. Requires the `form_filler`
      * feature flag to be enabled for your organization.
      *
-     * @param {Pulse.FormClearJsonInput} request
+     * @param {Pulse.FormClearMultipartInput} request
      * @param {FormClient.RequestOptions} requestOptions - Request-specific configuration.
      *
      * @throws {@link Pulse.BadRequestError}
@@ -291,23 +364,55 @@ export class FormClient {
      * @throws {@link Pulse.InternalServerError}
      *
      * @example
-     *     await client.form.clear()
+     *     import { createReadStream } from "fs";
+     *     await client.form.clear({})
      */
     public clear(
-        request: Pulse.FormClearJsonInput = {},
+        request: Pulse.FormClearMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): core.HttpResponsePromise<Pulse.FormResult> {
         return core.HttpResponsePromise.fromPromise(this.__clear(request, requestOptions));
     }
 
     private async __clear(
-        request: Pulse.FormClearJsonInput = {},
+        request: Pulse.FormClearMultipartInput,
         requestOptions?: FormClient.RequestOptions,
     ): Promise<core.WithRawResponse<Pulse.FormResult>> {
+        const _request = await core.newFormData();
+        if (request.file != null) {
+            await _request.appendFile("file", request.file);
+        }
+
+        if (request.file_url != null) {
+            _request.append("file_url", request.file_url);
+        }
+
+        if (request.form_id != null) {
+            _request.append("form_id", request.form_id);
+        }
+
+        if (request.instructions != null) {
+            _request.append("instructions", request.instructions);
+        }
+
+        if (request.form_fields != null) {
+            _request.append("form_fields", request.form_fields);
+        }
+
+        if (request.page_range != null) {
+            _request.append("page_range", request.page_range);
+        }
+
+        if (request.async != null) {
+            _request.append("async", request.async);
+        }
+
+        const _maybeEncodedRequest = await _request.getRequest();
         const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
         const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
             _authRequest.headers,
             this._options?.headers,
+            mergeOnlyDefinedHeaders({ ..._maybeEncodedRequest.headers }),
             requestOptions?.headers,
         );
         const _response = await core.fetcher({
@@ -319,10 +424,10 @@ export class FormClient {
             ),
             method: "POST",
             headers: _headers,
-            contentType: "application/json",
             queryParameters: requestOptions?.queryParams,
-            requestType: "json",
-            body: request,
+            requestType: "file",
+            duplex: _maybeEncodedRequest.duplex,
+            body: _maybeEncodedRequest.body,
             timeoutMs:
                 requestOptions?.timeoutInSeconds != null
                     ? requestOptions.timeoutInSeconds * 1000
