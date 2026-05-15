@@ -23,5 +23,6 @@ export interface FormResult {
     fields_cleared?: number;
     /** Number of credits consumed by **this request**. Detect charges 1 credit per page; fill and clear charge 3 credits per page. */
     credits_used?: number;
-    plan_info?: Pulse.FormPlanInfo;
+    /** Billing tier and cumulative usage information for the calling org, including this form run. */
+    plan_info?: Pulse.PlanInfo;
 }

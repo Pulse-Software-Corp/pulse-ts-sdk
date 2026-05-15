@@ -10,16 +10,16 @@ export interface ExtractResponse {
     markdown?: string;
     /** Output from enabled extensions. Each key corresponds to an extension that was enabled in the request under `extensions.*`. Only keys for enabled extensions are present. */
     extensions?: ExtractResponse.Extensions;
-    /** Positional bounding-box data for text, titles, headers, footers, images, and tables. Used by the frontend for annotation overlays. */
-    bounding_boxes?: Record<string, unknown>;
+    /** Positional bounding-box data for text, titles, headers, footers, images, and tables. `Images` carries chart/image visuals (with `image_url` when `figure_processing.show_images` is enabled), `Tables` the detected tables, and `Text`/`Title`/`Footer` the paragraph/title/footer regions. Additional keys (e.g. `markdown_with_ids`, `defined_names`) round-trip without being typed. */
+    bounding_boxes?: Pulse.BoundingBoxes;
     /** Persisted extraction ID. Present when storage is enabled (default). Use this ID with `/split` and `/schema` endpoints. */
     extraction_id?: string;
     /** URL to view the extraction on the Pulse platform. Present when storage is enabled. */
     extraction_url?: string;
     /** Number of pages processed. */
     page_count?: number;
-    /** Billing tier and usage information. */
-    plan_info?: ExtractResponse.PlanInfo;
+    /** Billing tier and cumulative usage information. Includes `total_credits_used` (primary billing metric) and `pages_used` (legacy compatibility). */
+    plan_info?: Pulse.PlanInfo;
     /** Non-fatal warnings generated during extraction. Includes deprecation notices when legacy input parameters are used, as well as processing warnings (e.g. word-level bounding box limitations). */
     warnings?: string[];
     /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
@@ -127,18 +127,6 @@ export namespace ExtractResponse {
                 }
             }
         }
-    }
-
-    /**
-     * Billing tier and usage information.
-     */
-    export interface PlanInfo {
-        /** Current plan tier name. */
-        tier?: string;
-        /** Cumulative pages used after this extraction. */
-        pages_used?: number;
-        /** Human-readable plan note. */
-        note?: string;
     }
 
     /**

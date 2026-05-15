@@ -18,4 +18,6 @@ export interface SplitSchemaResponse {
     errors?: Record<string, string>;
     /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
     credits_used?: number | null;
+    /** Billing tier and cumulative usage information for the calling org, including this split-schema run. */
+    plan_info?: Pulse.PlanInfo;
 }

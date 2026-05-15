@@ -95,4 +95,103 @@ export class ResultsClient {
 
         return handleNonStatusCodeError(_response.error, _response.rawResponse, "GET", "/results/{jobId}/pdf");
     }
+
+    /**
+     * Stream a PNG/JPEG visual image referenced by an extraction
+     * response under `bounding_boxes.Images[].image_url`.
+     *
+     * The URL is API-hosted instead of raw S3 — the underlying object
+     * store is intentionally not part of the public contract. The host
+     * in `image_url` mirrors the request origin (e.g. a request to a
+     * beta deployment returns image URLs on that same host).
+     *
+     * **Authentication is required.** Unlike the legacy single-use
+     * `/large_results/{jobId}` route, visual artifacts are
+     * independently-addressable resources — every fetch must present a
+     * valid API key for the owning org. There is no anonymous /
+     * TTL-based fallback. Use the same `x-api-key` header you use for
+     * `/extract`.
+     *
+     * Fetching an image does **not** consume the parent extraction's
+     * result-delivery slot, so one extraction can produce many image
+     * URLs and each can be fetched repeatedly while the artifact is
+     * retained.
+     * @throws {@link Pulse.BadRequestError}
+     * @throws {@link Pulse.UnauthorizedError}
+     * @throws {@link Pulse.ForbiddenError}
+     * @throws {@link Pulse.NotFoundError}
+     * @throws {@link Pulse.InternalServerError}
+     */
+    public getImage(
+        request: Pulse.GetImageResultsRequest,
+        requestOptions?: ResultsClient.RequestOptions,
+    ): core.HttpResponsePromise<core.BinaryResponse> {
+        return core.HttpResponsePromise.fromPromise(this.__getImage(request, requestOptions));
+    }
+
+    private async __getImage(
+        request: Pulse.GetImageResultsRequest,
+        requestOptions?: ResultsClient.RequestOptions,
+    ): Promise<core.WithRawResponse<core.BinaryResponse>> {
+        const { jobId, filename } = request;
+        const _authRequest: core.AuthRequest = await this._options.authProvider.getAuthRequest();
+        const _headers: core.Fetcher.Args["headers"] = mergeHeaders(
+            _authRequest.headers,
+            this._options?.headers,
+            requestOptions?.headers,
+        );
+        const _response = await core.fetcher<core.BinaryResponse>({
+            url: core.url.join(
+                (await core.Supplier.get(this._options.baseUrl)) ??
+                    (await core.Supplier.get(this._options.environment)) ??
+                    environments.PulseEnvironment.Default,
+                `results/${core.url.encodePathParam(jobId)}/images/${core.url.encodePathParam(filename)}`,
+            ),
+            method: "GET",
+            headers: _headers,
+            queryParameters: requestOptions?.queryParams,
+            responseType: "binary-response",
+            timeoutMs:
+                requestOptions?.timeoutInSeconds != null
+                    ? requestOptions.timeoutInSeconds * 1000
+                    : this._options?.timeoutInSeconds != null
+                      ? this._options?.timeoutInSeconds * 1000
+                      : undefined,
+            maxRetries: requestOptions?.maxRetries ?? this._options?.maxRetries,
+            abortSignal: requestOptions?.abortSignal,
+            fetchFn: this._options?.fetch,
+            logging: this._options.logging,
+        });
+        if (_response.ok) {
+            return { data: _response.body, rawResponse: _response.rawResponse };
+        }
+
+        if (_response.error.reason === "status-code") {
+            switch (_response.error.statusCode) {
+                case 400:
+                    throw new Pulse.BadRequestError(_response.error.body as unknown, _response.rawResponse);
+                case 401:
+                    throw new Pulse.UnauthorizedError(_response.error.body as unknown, _response.rawResponse);
+                case 403:
+                    throw new Pulse.ForbiddenError(_response.error.body as unknown, _response.rawResponse);
+                case 404:
+                    throw new Pulse.NotFoundError(_response.error.body as unknown, _response.rawResponse);
+                case 500:
+                    throw new Pulse.InternalServerError(_response.error.body as unknown, _response.rawResponse);
+                default:
+                    throw new errors.PulseError({
+                        statusCode: _response.error.statusCode,
+                        body: _response.error.body,
+                        rawResponse: _response.rawResponse,
+                    });
+            }
+        }
+
+        return handleNonStatusCodeError(
+            _response.error,
+            _response.rawResponse,
+            "GET",
+            "/results/{jobId}/images/{filename}",
+        );
+    }
 }

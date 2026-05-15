@@ -1352,6 +1352,90 @@ await client.results.getPdf({
 </dl>
 </details>
 
+<details><summary><code>client.results.<a href="/src/api/resources/results/client/Client.ts">getImage</a>({ ...params }) -> core.BinaryResponse</code></summary>
+<dl>
+<dd>
+
+#### 📝 Description
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+Stream a PNG/JPEG visual image referenced by an extraction
+response under `bounding_boxes.Images[].image_url`.
+
+The URL is API-hosted instead of raw S3 — the underlying object
+store is intentionally not part of the public contract. The host
+in `image_url` mirrors the request origin (e.g. a request to a
+beta deployment returns image URLs on that same host).
+
+**Authentication is required.** Unlike the legacy single-use
+`/large_results/{jobId}` route, visual artifacts are
+independently-addressable resources — every fetch must present a
+valid API key for the owning org. There is no anonymous /
+TTL-based fallback. Use the same `x-api-key` header you use for
+`/extract`.
+
+Fetching an image does **not** consume the parent extraction's
+result-delivery slot, so one extraction can produce many image
+URLs and each can be fetched repeatedly while the artifact is
+retained.
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### 🔌 Usage
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+```typescript
+await client.results.getImage({
+    jobId: "jobId",
+    filename: "filename"
+});
+
+```
+</dd>
+</dl>
+</dd>
+</dl>
+
+#### ⚙️ Parameters
+
+<dl>
+<dd>
+
+<dl>
+<dd>
+
+**request:** `Pulse.GetImageResultsRequest` 
+    
+</dd>
+</dl>
+
+<dl>
+<dd>
+
+**requestOptions:** `ResultsClient.RequestOptions` 
+    
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+</dd>
+</dl>
+</details>
+
 ## LargeResults
 <details><summary><code>client.largeResults.<a href="/src/api/resources/largeResults/client/Client.ts">getLargeResult</a>({ ...params }) -> Pulse.ExtractResultCore</code></summary>
 <dl>

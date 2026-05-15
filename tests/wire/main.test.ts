@@ -9,7 +9,12 @@ describe("PulseClient", () => {
         const server = mockServerPool.createServer();
         const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
         const rawRequestBody = { extraction_id: "extraction_id" };
-        const rawResponseBody = { split_id: "split_id", split_output: { splits: { key: [1] } }, credits_used: 1.1 };
+        const rawResponseBody = {
+            split_id: "split_id",
+            split_output: { splits: { key: [1] } },
+            credits_used: 1.1,
+            plan_info: { tier: "tier", total_credits_used: 1.1, pages_used: 1, note: "note" },
+        };
         server
             .mockEndpoint()
             .post("/split")
@@ -30,6 +35,12 @@ describe("PulseClient", () => {
                 },
             },
             credits_used: 1.1,
+            plan_info: {
+                tier: "tier",
+                total_credits_used: 1.1,
+                pages_used: 1,
+                note: "note",
+            },
         });
     });
 
@@ -149,6 +160,7 @@ describe("PulseClient", () => {
             extraction_ids: ["extraction_ids"],
             excel_output_url: "excel_output_url",
             credits_used: 1.1,
+            plan_info: { tier: "tier", total_credits_used: 1.1, pages_used: 1, note: "note" },
         };
         server
             .mockEndpoint()
@@ -174,6 +186,12 @@ describe("PulseClient", () => {
             extraction_ids: ["extraction_ids"],
             excel_output_url: "excel_output_url",
             credits_used: 1.1,
+            plan_info: {
+                tier: "tier",
+                total_credits_used: 1.1,
+                pages_used: 1,
+                note: "note",
+            },
         });
     });
 
@@ -276,7 +294,12 @@ describe("PulseClient", () => {
         const server = mockServerPool.createServer();
         const client = new PulseClient({ maxRetries: 0, apiKey: "test", environment: server.baseUrl });
         const rawRequestBody = { extraction_id: "extraction_id" };
-        const rawResponseBody = { tables_id: "tables_id", tables_output: { tables: [{}] }, credits_used: 1.1 };
+        const rawResponseBody = {
+            tables_id: "tables_id",
+            tables_output: { tables: [{}] },
+            credits_used: 1.1,
+            plan_info: { tier: "tier", total_credits_used: 1.1, pages_used: 1, note: "note" },
+        };
         server
             .mockEndpoint()
             .post("/tables")
@@ -295,6 +318,12 @@ describe("PulseClient", () => {
                 tables: [{}],
             },
             credits_used: 1.1,
+            plan_info: {
+                tier: "tier",
+                total_credits_used: 1.1,
+                pages_used: 1,
+                note: "note",
+            },
         });
     });
 

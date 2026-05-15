@@ -12,6 +12,8 @@ export interface PipelineSplitResult {
     split_output?: Pulse.SplitOutput;
     /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
     credits_used?: number | null;
+    /** Billing tier and cumulative usage information for the calling org, including this split run. */
+    plan_info?: Pulse.PlanInfo;
     /** Echo of the topic definitions used. */
     split_input?: Pulse.TopicDefinition[];
     /** Step execution time in seconds. */

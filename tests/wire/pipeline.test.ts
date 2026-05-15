@@ -15,7 +15,6 @@ describe("PipelineClient", () => {
             results: {
                 extract: {
                     markdown: "markdown",
-                    bounding_boxes: { key: "value" },
                     extraction_id: "extraction_id",
                     extraction_url: "extraction_url",
                     page_count: 1,
@@ -49,9 +48,6 @@ describe("PipelineClient", () => {
             results: {
                 extract: {
                     markdown: "markdown",
-                    bounding_boxes: {
-                        key: "value",
-                    },
                     extraction_id: "extraction_id",
                     extraction_url: "extraction_url",
                     page_count: 1,
