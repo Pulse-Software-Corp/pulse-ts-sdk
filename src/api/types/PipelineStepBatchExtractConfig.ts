@@ -16,7 +16,7 @@ export interface PipelineStepBatchExtractConfig {
     figureProcessing?: PipelineStepBatchExtractConfig.FigureProcessing;
     /** Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`. */
     extensions?: PipelineStepBatchExtractConfig.Extensions;
-    /** Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names. */
+    /** Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, and whether numeric cells are rendered using their display format or underlying raw value. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names. */
     spreadsheet?: PipelineStepBatchExtractConfig.Spreadsheet;
     /** Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created. */
     storage?: PipelineStepBatchExtractConfig.Storage;
@@ -121,7 +121,7 @@ export namespace PipelineStepBatchExtractConfig {
     }
 
     /**
-     * Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+     * Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, and whether numeric cells are rendered using their display format or underlying raw value. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
      */
     export interface Spreadsheet {
         /** Include rows that are hidden in the Excel workbook. */
@@ -130,6 +130,8 @@ export namespace PipelineStepBatchExtractConfig {
         includeHiddenCols?: boolean;
         /** Include sheets that are hidden in the Excel workbook. */
         includeHiddenSheets?: boolean;
+        /** Emit the underlying numeric value for number cells instead of the Excel display-formatted text (e.g. `1201.67` rather than `$1,202` when the cell uses a rounded currency format). Percent-formatted cells and dates keep their display rendering. Does not apply to legacy `.xls` files. */
+        useRawValues?: boolean;
     }
 
     /**
