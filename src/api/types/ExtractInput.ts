@@ -18,7 +18,7 @@ export interface ExtractInput {
     figureProcessing?: ExtractInput.FigureProcessing;
     /** Settings that enable additional processing passes or alternate output formats. Each enabled extension produces a corresponding output field under `response.extensions.*`. */
     extensions?: ExtractInput.Extensions;
-    /** Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names. */
+    /** Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names. */
     spreadsheet?: ExtractInput.Spreadsheet;
     /** Options for persisting extraction artifacts. When enabled (default), artifacts are saved to storage and a database record is created. */
     storage?: ExtractInput.Storage;
@@ -117,7 +117,7 @@ export namespace ExtractInput {
     }
 
     /**
-     * Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
+     * Settings for Excel/spreadsheet extraction. Controls handling of hidden rows, columns, and sheets, whether numeric cells are rendered using their display format or underlying raw value, and optional trimming of empty phantom rows/columns past the last data-bearing cell. Applies to `.xlsx`, `.xlsm`, and `.xls` files. Accepts both camelCase and snake_case field names.
      */
     export interface Spreadsheet {
         /** Include rows that are hidden in the Excel workbook. */
@@ -126,6 +126,12 @@ export namespace ExtractInput {
         includeHiddenCols?: boolean;
         /** Include sheets that are hidden in the Excel workbook. */
         includeHiddenSheets?: boolean;
+        /** Emit the underlying numeric value for number cells instead of the Excel display-formatted text (e.g. `1201.67` rather than `$1,202` when the cell uses a rounded currency format). Percent-formatted cells and dates keep their display rendering. Does not apply to legacy `.xls` files. */
+        useRawValues?: boolean;
+        /** When true, trim trailing empty rows past the last cell carrying a value or formula before parsing. Excel exports from claims systems and ERPs routinely declare a used range with hundreds of thousands of empty-but-styled phantom rows that inflate file size and exhaust parser memory; enabling this strips them out without touching any cell that actually has data. Surviving cells keep their original A1 coordinates so citations that reference a specific cell remain stable. Defaults to false. */
+        onlyDataRows?: boolean;
+        /** When true, trim trailing empty columns past the last cell carrying a value or formula. Same rationale and coordinate-stability guarantee as `onlyDataRows`. Defaults to false. */
+        onlyDataCols?: boolean;
     }
 
     /**

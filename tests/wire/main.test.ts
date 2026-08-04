@@ -158,7 +158,6 @@ describe("PulseClient", () => {
             version: 1,
             schema_output: { values: { key: "value" }, citations: { key: "value" } },
             extraction_ids: ["extraction_ids"],
-            excel_output_url: "excel_output_url",
             credits_used: 1.1,
             plan_info: { tier: "tier", total_credits_used: 1.1, pages_used: 1, note: "note" },
         };
@@ -184,7 +183,6 @@ describe("PulseClient", () => {
                 },
             },
             extraction_ids: ["extraction_ids"],
-            excel_output_url: "excel_output_url",
             credits_used: 1.1,
             plan_info: {
                 tier: "tier",
