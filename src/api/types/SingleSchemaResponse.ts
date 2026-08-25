@@ -14,8 +14,6 @@ export interface SingleSchemaResponse {
     schema_output: Pulse.StructuredOutputResult;
     /** Present when multiple extractions were combined (via batch extract auto-detection or explicit `extraction_ids` input). Lists all source extraction IDs that contributed to the result. */
     extraction_ids?: string[];
-    /** API path to download the filled Excel template (e.g. `/schema/{schema_id}/excel`). Requires the same API key authentication. Only present when `excel_template` was provided in the request. */
-    excel_output_url?: string;
     /** Number of credits consumed by this request. Only present when the organization has the credit billing system enabled. */
     credits_used?: number | null;
     /** Billing tier and cumulative usage information for the calling org, including this schema run. */
